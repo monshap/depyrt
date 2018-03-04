@@ -3,6 +3,7 @@ import numpy as np
 
 
 class IdealGasEOS(EOS):
+    """pv = RT"""
     @property
     def R(self):
         """L bar / K mol"""
@@ -51,7 +52,7 @@ if __name__ == '__main__':
     stp_real = nh3_real.get_state(p=p, T=T)
     stp_ideal = nh3_ideal.get_state(p=p, T=T)
 
-    print('Ammonia gas at STP:\nReal State:')
+    print('Ammonia gas at STP:\nPeng Robinson Real Gas:')
     print(stp_real)
-    print('Ideal State:')
+    print('Ideal Gas:')
     print(stp_ideal)
