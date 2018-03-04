@@ -7,7 +7,7 @@ class EOS(ABC):
         Equation of state abstract class
         - __init__ should take EOS params
         - gas constant must be defined
-        - eos function must be defined and set equal to 0        
+        - eos function must be defined and set equal to 0
           ------------------------------------------------
           e.g.
             class MyEOS(EOS):
@@ -49,22 +49,31 @@ class EOS(ABC):
             Returns a dict with defined props of state
         """
         pvT = [p, v, T]
+
         # ensure only two props are defined
         if sum(map(bool, pvT)) != 2:
             raise ValueError("Must define exactly two properties")
         else:
+
             # create state dict and convert props to floats
             try:
                 state = {prop: 0 if not val else float(val)
                          for prop, val in zip(['p', 'v', 'T'], pvT)}
             except (TypeError, ValueError):
                 raise ValueError("Properties given must be numbers")
-            # Set known props and call method to solve for other prop
+
+            # set known props
             for prop in state:
-                setattr(self, '_EOS__%s' % prop, state[prop])
-                if state[prop] == 0:
+                if state[prop] != 0:
+                    setattr(self, '_EOS__%s' % prop, state[prop])
+                else:
                     solve_for = prop
+
+            # call method to solve for other prop
             state[solve_for] = getattr(self, '__get%s__' % solve_for)()
+
+            # solve for compressibility, z
+            state['z'] = (state['p'] * state['v']) / (self.R * state['T'])
             return state
 
     def __getp__(self):
