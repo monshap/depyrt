@@ -51,7 +51,7 @@ if __name__ == '__main__':
     stp_real = nh3_real.get_state(p=p, T=T)
     stp_ideal = nh3_ideal.get_state(p=p, T=T)
 
-    print('at STP:\nReal State:')
+    print('Ammonia gas at STP:\nReal State:')
     print(stp_real)
     print('Ideal State:')
     print(stp_ideal)
