@@ -6,35 +6,35 @@ class EOS(ABC):
     """
         Equation of state abstract class
         - __init__ should take EOS params
-        - gas constant must be defined
+        - gas constant (self.R) can be defined, but has default
         - eos function must be defined and set equal to 0
           ------------------------------------------------
           e.g.
             class MyEOS(EOS):
-                def __init__(self, <<EOS-Dependent Variables>>):
+                name = 'MyEOS'
+
+                def __init__(self, <<EOS-Dependent Variables>>, R=None):
                     <<Assign EOS variables here - to be used in self.eos>>
 
-                @property
-                def R(self):
-                    return <<R value>>
+                    # If no R is defined, default value is used
+                    if R:
+                        # default: 8.314E-2 [L bar / K mol]
+                        self.R = <<Assign R value here>>
 
                 def eos(self, p, v, T):
                     return <<EOS function set equal to 0>>
           ------------------------------------------------
     """
+    # set default R value (L bar / K mol)
+    R = 8.314E-2
+
+    # name attribute
+    name = 'EOS'
+
     def __init__(self):
         self.__p = None
         self.__v = None
         self.__T = None
-
-    @property
-    @abstractmethod
-    def R(self):
-        """
-            Define gas constant here
-              - use appropriate units
-        """
-        pass
 
     @abstractmethod
     def eos(self, p, v, T):
@@ -44,11 +44,18 @@ class EOS(ABC):
         """
         pass
 
-    def get_state(self, T=None, p=None, v=None):
+    def get_state(self, T=None, p=None, v=None, R=None):
         """
             Returns a dict with defined props of state
         """
         pvT = [p, v, T]
+
+        # if R was passed in, set the attribute
+        if R:
+            self.R = float(R)
+        else:
+            # ensure R is a float
+            self.R = float(self.R)
 
         # ensure only two props are defined
         if sum(map(bool, pvT)) != 2:
@@ -74,6 +81,12 @@ class EOS(ABC):
 
             # solve for compressibility, z
             state['z'] = (state['p'] * state['v']) / (self.R * state['T'])
+
+            # attach EOS name to state dict
+            state['eos'] = self.name
+
+            # set state attribute to newest solution
+            self.state = state
             return state
 
     def __getp__(self):
