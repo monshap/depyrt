@@ -1,0 +1,26 @@
+(dp0
+S'Methane (CH4)'
+p1
+(dp2
+S'pc'
+p3
+F46.1
+sS'omega'
+p4
+F0.011
+sS'Tc'
+p5
+F190.6
+ssS'Ammonia (NH3)'
+p6
+(dp7
+S'pc'
+p8
+F113.53
+sS'omega'
+p9
+F0.257
+sS'Tc'
+p10
+F405.4
+ss.
