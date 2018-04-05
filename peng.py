@@ -17,7 +17,7 @@ class PengRobinsonEOS():
         self.Tc = Tc
         self.kappa = 0.37464 + 1.54226 * omega - 0.26992 * omega**2
 
-    def calc_v(self, p, T, root='liquid'):
+    def calc_v(self, p, T, root='vapor'):
         """ c1 * v^3 + c2 * v^2 + c3 * v + c4 = 0 """
         a = 0.45724 * (self.R * self.Tc)**2 / self.pc
         b = 0.07780 * self.R * self.Tc / self.pc
@@ -43,7 +43,7 @@ class PengRobinsonEOS():
             vs.append(val)
 
         # return appropriate root depending on phase
-        return min(vs) if root.lower() in 'liquid' else max(vs)
+        return max(vs) if root.lower() in 'vapor' else min(vs)
 
 if __name__ == '__main__':
     # Ammonia (NH_3) props
