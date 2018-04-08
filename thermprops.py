@@ -115,6 +115,10 @@ class BaseProps(object):
         """Returns Gibbs Free Energy"""
         return self.get_A(T, V) + Na * kb * float(T)
 
+    def get_Cp(self, T, *args):
+        """Returns Constant p Heat Capacity"""
+        return self.get_Cv(T) + Na * kb
+
     def calc_all(self, T, V):
         """Returns dictionary of all thermodynmic properties"""
         sol = {m.split('_')[-1]: getattr(self, m)(T, V)
@@ -244,6 +248,3 @@ if __name__ == '__main__':
     b = make_props_calculator(ammonia)
     sol = b.calc_all(200, 0.277)
     sol2 = b.calc_all(450, 0.0179)
-
-    pv = 0.06E5 * 0.277
-    pv2 = 2.09E5 * 0.0179
