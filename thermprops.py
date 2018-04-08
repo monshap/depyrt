@@ -48,12 +48,12 @@ D0 = 370.7 * 4186.8
 Mw = 17.
 
 # summary dict
-ammonia = {'theta_v': list(map(float, theta_v)),
-           'theta_r': list(map(float, theta_r)),
-           'sigma': float(sigma),
-           'W0': float(W0),
-           'D0': float(D0),
-           'Mw': float(Mw),
+ammonia = {'theta_v': theta_v,
+           'theta_r': theta_r,
+           'sigma': sigma,
+           'W0': W0,
+           'D0': D0,
+           'Mw': Mw,
            'type': 'nonlinear'
            }
 
@@ -78,6 +78,12 @@ class BaseProps(object):
         if missing:
             raise KeyError("Missing %s from molecular properties!" % missing)
 
+        for k in props_dict:
+            if k != 'type':
+                if isinstance(props_dict[k], list):
+                    props_dict[k] = list(map(float, props_dict[k]))
+                else:
+                    props_dict[k] = float(props_dict[k])
         # create props attribute
         self.props = props_dict
 
@@ -189,6 +195,8 @@ class LinearProps(BaseProps):
 class NonlinearProps(BaseProps):
     def __init__(self, props_dict):
         super(NonlinearProps, self).__init__(props_dict)
+        if not isinstance(props_dict['theta_v'], list):
+            props_dict['theta_v'] = [props_dict['theta_v']]
 
         # product of rotational temperatures
         self.theta_r3 = reduce(mul, self.theta_r)
