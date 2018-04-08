@@ -47,11 +47,13 @@ class GUI:
 
         # main message
         self.title = QLabel('Peng Robinson Volume Calculator')
+        self.title.setFixedHeight(40)
         self.title.setFont(QFont('SansSerif', 18, QtGui.QFont.Bold))
 
         # molecule selection
         self.mol_lbl = QLabel('Molecule:')
         self.mol = QComboBox()
+        self.mol.setFixedHeight(40)
         self.mol.setEditable(True)
         ledit = self.mol.lineEdit()
         ledit.setAlignment(cen)
@@ -107,6 +109,14 @@ class GUI:
         self.V.setFixedSize(300, 50)
         self.V.setAlignment(QtCore.Qt.AlignCenter)
 
+        self.Z_lbl = QLabel('Z:')
+        self.Z = QLabel()
+        self.Z.setFont(QFont('SansSerif', 15))
+        self.Z.setFrameShape(QFrame.Panel)
+        self.Z.setFrameShadow(QFrame.Sunken)
+        self.Z.setFixedSize(300, 50)
+        self.Z.setAlignment(QtCore.Qt.AlignCenter)
+
         root = QHBoxLayout()
         root.addWidget(self.liq)
         root.addWidget(self.vap)
@@ -152,6 +162,10 @@ class GUI:
 
         lay.addWidget(self.V_lbl, row, 0, right)
         lay.addWidget(self.V, row, 1, 1, 2, cen)
+        row += 1
+
+        lay.addWidget(self.Z_lbl, row, 0, right)
+        lay.addWidget(self.Z, row, 1, 1, 2, cen)
 
         # overall layout formatting
         lay.setSpacing(40)
@@ -173,12 +187,18 @@ class GUI:
             if not success:
                 self.V.setText('')
                 self.V.setStyleSheet('background-color: white;')
+                self.Z.setText('')
+                self.Z.setStyleSheet('background-color: white;')
             else:
                 root = 'vapor' if self.vap.isChecked() else 'liquid'
                 val = self.calculator.calc_v(p, T, root)
-                val_str = '%.3f L' if 100 > val > 1 else '%.3e L'
+                val_str = '%.3f' if 100 > val > 1 else '%.3e'
                 self.V.setText(val_str % val)
                 self.V.setStyleSheet('background-color: lightgreen;')
+                z = p * val / (self.calculator.R * T)
+                z_str = '%.3f' if z >= 0.1 else '%.3e'
+                self.Z.setText(z_str % z)
+                self.Z.setStyleSheet('background-color: lightgreen;')
 
         @QtCore.pyqtSlot()
         def add_clicked():
