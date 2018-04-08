@@ -4,6 +4,8 @@ from PyQt5.QtWidgets import *
 import sys
 import pickle
 from peng import PengRobinsonEOS
+import ctypes
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('arbitrary')
 
 # Ammonia (NH_3) props
 pc = 113.53  # bar
@@ -15,16 +17,69 @@ stp_p = 1.01325  # bar
 stp_T = 273.15   # K
 
 
+class NewMolecule(QDialog):
+    def __init__(self, parent):
+        cl = QtCore.Qt.WindowCloseButtonHint
+        super(NewMolecule, self).__init__(parent, cl)
+        self.setFixedSize(400, 200)
+        self.setWindowTitle('New Molecule')
+        self.passed = False
+
+        self.setFont(QFont('SansSerif', 15))
+        form = QFormLayout()
+        self.name = QLineEdit()
+        self.pc = QLineEdit()
+        self.Tc = QLineEdit()
+        self.omega = QLineEdit()
+        self.okay = QPushButton('Save')
+        for w in [self.name, self.pc, self.Tc, self.omega]:
+            w.setAlignment(QtCore.Qt.AlignCenter)
+
+        form.addRow('Name:', self.name)
+        form.addRow('Pc:', self.pc)
+        form.addRow('Tc:', self.Tc)
+        form.addRow('Omega:', self.omega)
+        form.addWidget(self.okay)
+
+        self.okay.clicked.connect(self.check_mol)
+
+        self.setLayout(form)
+
+    def check_mol(self):
+        self.passed = False
+        if self.name.text():
+            for n in [i.text() for i in [self.pc, self.Tc, self.omega]]:
+                try:
+                    n = float(n)
+                    if n <= 0:
+                        break
+                except:
+                    break
+            else:
+                self.passed = True
+                self.close()
+
+
 class GUI:
     def __init__(self):
         self.app = QApplication([])
+        self.app.setWindowIcon(QIcon('benzene.png'))
+        
         # self.app.setStyle('WindowsXP')
         self.w = QTabWidget()
         self.w.setFixedSize(1000, 800)
+        self.w.setFont(QFont('SansSerif', 15))
         self.w.setWindowTitle('Thermo Project')
+        self.w.setWindowIcon(QIcon('benzene.png'))
 
-        with open('mol_props.pickle', 'r') as f:
+        self.prop_path = 'mol_props.pickle'
+
+        with open(self.prop_path, 'r') as f:
             self.mol_props = pickle.load(f)
+
+    def save_mol_props(self):
+        with open(self.prop_path, 'w') as f:
+            pickle.dump(self.mol_props, f)
 
     def build_peng(self):
         # PengRobinsonEOS object
@@ -54,9 +109,17 @@ class GUI:
         ledit.setAlignment(cen)
         ledit.setReadOnly(True)
         self.mol.addItems(sorted(self.mol_props.keys()))
+        # remember previous index
+        self.prev_ind = 0
 
         for i in range(self.mol.count()):
             self.mol.setItemData(i, cen, QtCore.Qt.TextAlignmentRole)
+
+        # buttons to add & remove molecule data
+        self.add = QPushButton('Add Molecule')
+        self.add.setFixedSize(300, 40)
+        self.rem = QPushButton('Remove Selected Molecule')
+        self.rem.setFixedSize(300, 40)
 
         # current molecular data
         self.pc_lbl = QLabel('   Pc')
@@ -65,6 +128,11 @@ class GUI:
         self.Tc = QLabel()
         self.omega_lbl = QLabel('Omega')
         self.omega = QLabel()
+        for w in [self.pc_lbl, self.pc,
+                  self.Tc_lbl, self.Tc,
+                  self.omega_lbl, self.omega
+                  ]:
+            w.setFixedHeight(20)
 
         # pressure label and input
         self.p_lbl = QLabel('Pressure (bar):')
@@ -85,17 +153,11 @@ class GUI:
         # volume label and result label
         self.V_lbl = QLabel('Volume (L / mol):')
         self.V = QLabel()
+        self.V.setFont(QFont('SansSerif', 15))
         self.V.setFrameShape(QFrame.Panel)
         self.V.setFrameShadow(QFrame.Sunken)
         self.V.setFixedSize(300, 50)
         self.V.setAlignment(QtCore.Qt.AlignCenter)
-
-        for w in [self.mol_lbl, self.mol, self.pc_lbl,
-                  self.pc, self.Tc_lbl, self.Tc,
-                  self.omega_lbl, self.omega, self.p_lbl, self.p, self.T_lbl,
-                  self.T, self.root_lbl, self.liq,
-                  self.vap, self.V_lbl, self.V]:
-            w.setFont(font)
 
         root = QHBoxLayout()
         root.addWidget(self.liq)
@@ -112,13 +174,16 @@ class GUI:
         lay.addWidget(self.mol, row, 1, 1, 2)
         row += 1
 
-        lay.setRowStretch(row, 0.01)
+        lay.setRowStretch(row, 0.1)
+        lay.addWidget(self.add, row, 1, 1, 2, left)
+        lay.addWidget(self.rem, row, 1, 1, 2, right)
+        row += 1
+
         lay.addWidget(self.pc_lbl, row, 1, 1, 2, left)
         lay.addWidget(self.Tc_lbl, row, 1, 1, 2, cen)
         lay.addWidget(self.omega_lbl, row, 1, 1, 2, right)
         row += 1
 
-        lay.setRowStretch(row, 0.01)
         lay.addWidget(self.pc, row, 1, 1, 2, left)
         lay.addWidget(self.Tc, row, 1, 1, 2, cen)
         lay.addWidget(self.omega, row, 1, 1, 2, right)
@@ -141,23 +206,9 @@ class GUI:
         lay.addWidget(self.V, row, 1, 1, 2, cen)
 
         # overall layout formatting
-        lay.setSpacing(50)
+        lay.setSpacing(40)
         lay.setContentsMargins(5, 50, 100, 50)
         tab.setLayout(lay)
-
-        @QtCore.pyqtSlot()
-        def make_calc():
-            molecule = self.mol.currentText()
-            if molecule:
-                props = self.mol_props[molecule]
-                self.calculator = PengRobinsonEOS(props['pc'],
-                                                  props['Tc'],
-                                                  props['omega'])
-                self.pc.setText('%.2f' % props['pc'])
-                self.Tc.setText('%.2f' % props['Tc'])
-                self.omega.setText('%.3f' % props['omega'])
-
-                calculate()
 
         @QtCore.pyqtSlot()
         def calculate():
@@ -181,15 +232,71 @@ class GUI:
                 self.V.setText(val_str % val)
                 self.V.setStyleSheet('background-color: lightgreen;')
 
+        @QtCore.pyqtSlot()
+        def add_clicked():
+            success = self.add_mol()
+            if success:
+                make_calc()
+
+        @QtCore.pyqtSlot()
+        def make_calc():
+            molecule = self.mol.currentText()
+            props = self.mol_props[molecule]
+            self.calculator = PengRobinsonEOS(props['pc'],
+                                              props['Tc'],
+                                              props['omega'])
+            self.pc.setText('%.2f' % props['pc'])
+            self.Tc.setText('%.2f' % props['Tc'])
+            self.omega.setText('%.3f' % props['omega'])
+            self.prev_ind = self.mol.currentIndex()
+            calculate()
+
         make_calc()
+        self.add.clicked.connect(add_clicked)
         self.mol.currentTextChanged.connect(make_calc)
 
-        calculate()
         self.p.textChanged.connect(calculate)
         self.T.textChanged.connect(calculate)
         self.vap.toggled.connect(calculate)
+        self.rem.clicked.connect(self.remove_mol)
 
-        self.w.addTab(tab, 'Peng Robinson NEW')
+        self.w.addTab(tab, 'Volume Calculator')
+
+    def add_mol(self):
+        """open dialog box for user to input new mol props"""
+        newm = NewMolecule(self.w)
+        newm.exec_()
+        if newm.passed:
+            name = newm.name.text()
+            info = {'pc': float(newm.pc.text()),
+                    'Tc': float(newm.Tc.text()),
+                    'omega': float(newm.omega.text())}
+            self.mol_props[name] = info
+            self.save_mol_props()
+            index = self.mol.count()
+            self.mol.insertItem(index, name)
+            self.mol.setItemData(index,
+                                 QtCore.Qt.AlignCenter,
+                                 QtCore.Qt.TextAlignmentRole
+                                 )
+
+            self.mol.setCurrentText(name)
+            return True
+        else:
+            return False
+
+    def remove_mol(self):
+        text = self.mol.currentText()
+        ind = self.mol.currentIndex()
+        if text in ['Ammonia (NH3)', 'Methane (CH4)']:
+            QMessageBox(QMessageBox.Information, " ",
+                        "Sorry, you aren't allowed to remove %s" % text,
+                        QMessageBox.Ok).exec_()
+            return
+        self.mol_props.pop(text)
+        self.save_mol_props()
+        self.mol.setCurrentIndex(0)
+        self.mol.removeItem(ind)
 
     def main(self):
         self.build_peng()
@@ -199,3 +306,6 @@ class GUI:
 if __name__ == '__main__':
     p = GUI()
     p.main()
+
+    orig = {'Ammonia (NH3)': {'Tc': 405.4, 'omega': 0.257, 'pc': 113.53},
+            'Methane (CH4)': {'Tc': 190.6, 'omega': 0.011, 'pc': 46.1}}
