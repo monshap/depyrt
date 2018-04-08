@@ -72,27 +72,27 @@ class GUI:
         self.rem.setFixedSize(300, 40)
 
         # current molecular data
-        self.pc_lbl = QLabel('   Pc')
-        self.pc = QLabel()
         self.Tc_lbl = QLabel('Tc')
         self.Tc = QLabel()
+        self.pc_lbl = QLabel('   Pc')
+        self.pc = QLabel()
         self.omega_lbl = QLabel('Omega')
         self.omega = QLabel()
         for w in [self.pc_lbl, self.pc,
                   self.Tc_lbl, self.Tc,
                   self.omega_lbl, self.omega
                   ]:
-            w.setFixedHeight(20)
-
-        # pressure label and input
-        self.p_lbl = QLabel('Pressure (bar):')
-        self.p = QLineEdit(text=str(1.01325))
-        self.p.setAlignment(cen)
+            w.setFixedHeight(30)
 
         # temperature label and input
         self.T_lbl = QLabel('Temperature (K):')
         self.T = QLineEdit(text=str(273.15))
         self.T.setAlignment(cen)
+
+        # pressure label and input
+        self.p_lbl = QLabel('Pressure (bar):')
+        self.p = QLineEdit(text=str(1.01325))
+        self.p.setAlignment(cen)
 
         # root radio buttons (vapor or liquid)
         self.root_lbl = QLabel('Phase:')
@@ -137,22 +137,22 @@ class GUI:
         lay.addWidget(self.rem, row, 1, 1, 2, right)
         row += 1
 
-        lay.addWidget(self.pc_lbl, row, 1, 1, 2, left)
-        lay.addWidget(self.Tc_lbl, row, 1, 1, 2, cen)
+        lay.addWidget(self.Tc_lbl, row, 1, 1, 2, left)
+        lay.addWidget(self.pc_lbl, row, 1, 1, 2, cen)
         lay.addWidget(self.omega_lbl, row, 1, 1, 2, right)
         row += 1
 
-        lay.addWidget(self.pc, row, 1, 1, 2, left)
-        lay.addWidget(self.Tc, row, 1, 1, 2, cen)
+        lay.addWidget(self.Tc, row, 1, 1, 2, left)
+        lay.addWidget(self.pc, row, 1, 1, 2, cen)
         lay.addWidget(self.omega, row, 1, 1, 2, right)
-        row += 1
-
-        lay.addWidget(self.p_lbl, row, 0, right)
-        lay.addWidget(self.p, row, 1, 1, 2)
         row += 1
 
         lay.addWidget(self.T_lbl, row, 0, right)
         lay.addWidget(self.T, row, 1, 1, 2)
+        row += 1
+
+        lay.addWidget(self.p_lbl, row, 0, right)
+        lay.addWidget(self.p, row, 1, 1, 2)
         row += 1
 
         lay.addWidget(self.root_lbl, row, 0, right | top)
