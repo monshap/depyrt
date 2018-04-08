@@ -4,73 +4,21 @@ from PyQt5.QtWidgets import *
 import sys
 import pickle
 from peng import PengRobinsonEOS
+from newmol import NewMolecule
 import ctypes
 ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('arbitrary')
-
-# Ammonia (NH_3) props
-pc = 113.53  # bar
-Tc = 405.4   # K
-omega = 0.257
-
-# standard pressure and temperature
-stp_p = 1.01325  # bar
-stp_T = 273.15   # K
-
-
-class NewMolecule(QDialog):
-    def __init__(self, parent):
-        cl = QtCore.Qt.WindowCloseButtonHint
-        super(NewMolecule, self).__init__(parent, cl)
-        self.setFixedSize(400, 200)
-        self.setWindowTitle('New Molecule')
-        self.passed = False
-
-        self.setFont(QFont('SansSerif', 15))
-        form = QFormLayout()
-        self.name = QLineEdit()
-        self.pc = QLineEdit()
-        self.Tc = QLineEdit()
-        self.omega = QLineEdit()
-        self.okay = QPushButton('Save')
-        for w in [self.name, self.pc, self.Tc, self.omega]:
-            w.setAlignment(QtCore.Qt.AlignCenter)
-
-        form.addRow('Name:', self.name)
-        form.addRow('Pc:', self.pc)
-        form.addRow('Tc:', self.Tc)
-        form.addRow('Omega:', self.omega)
-        form.addWidget(self.okay)
-
-        self.okay.clicked.connect(self.check_mol)
-
-        self.setLayout(form)
-
-    def check_mol(self):
-        self.passed = False
-        if self.name.text():
-            for n in [i.text() for i in [self.pc, self.Tc, self.omega]]:
-                try:
-                    n = float(n)
-                    if n <= 0:
-                        break
-                except:
-                    break
-            else:
-                self.passed = True
-                self.close()
 
 
 class GUI:
     def __init__(self):
         self.app = QApplication([])
         self.app.setWindowIcon(QIcon('benzene.png'))
-        
+
         # self.app.setStyle('WindowsXP')
         self.w = QTabWidget()
         self.w.setFixedSize(1000, 800)
         self.w.setFont(QFont('SansSerif', 15))
         self.w.setWindowTitle('Thermo Project')
-        self.w.setWindowIcon(QIcon('benzene.png'))
 
         self.prop_path = 'mol_props.pickle'
 
@@ -136,12 +84,12 @@ class GUI:
 
         # pressure label and input
         self.p_lbl = QLabel('Pressure (bar):')
-        self.p = QLineEdit(text=str(stp_p))
+        self.p = QLineEdit(text=str(1.01325))
         self.p.setAlignment(cen)
 
         # temperature label and input
         self.T_lbl = QLabel('Temperature (K):')
-        self.T = QLineEdit(text=str(stp_T))
+        self.T = QLineEdit(text=str(273.15))
         self.T.setAlignment(cen)
 
         # root radio buttons (vapor or liquid)
@@ -306,6 +254,3 @@ class GUI:
 if __name__ == '__main__':
     p = GUI()
     p.main()
-
-    orig = {'Ammonia (NH3)': {'Tc': 405.4, 'omega': 0.257, 'pc': 113.53},
-            'Methane (CH4)': {'Tc': 190.6, 'omega': 0.011, 'pc': 46.1}}
