@@ -2,7 +2,7 @@ from PyQt5.QtGui import *
 from PyQt5 import *
 from PyQt5.QtWidgets import *
 import sys
-import pickle
+import json
 from peng import PengRobinsonEOS
 from newmol import NewMolecule
 import ctypes
@@ -20,14 +20,14 @@ class GUI:
         self.w.setFont(QFont('SansSerif', 15))
         self.w.setWindowTitle('Thermo Project')
 
-        self.prop_path = 'mol_props.pickle'
+        self.prop_path = 'mol_props.json'
 
         with open(self.prop_path, 'r') as f:
-            self.mol_props = pickle.load(f)
+            self.mol_props = json.load(f, encoding='latin1')
 
     def save_mol_props(self):
         with open(self.prop_path, 'w') as f:
-            pickle.dump(self.mol_props, f)
+            json.dump(self.mol_props, f)
 
     def build_peng(self):
         # PengRobinsonEOS object
@@ -66,7 +66,7 @@ class GUI:
         # buttons to add & remove molecule data
         self.add = QPushButton('Add Molecule')
         self.add.setFixedSize(300, 40)
-        self.rem = QPushButton('Remove Selected Molecule')
+        self.rem = QPushButton('Remove Selected')
         self.rem.setFixedSize(300, 40)
 
         # current molecular data
