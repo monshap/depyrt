@@ -62,7 +62,7 @@ class PengTab(QWidget):
         self.Tc = QLabel()
         self.pc_lbl = QLabel('Pc')
         self.pc = QLabel()
-        self.omega_lbl = QLabel('Omega')
+        self.omega_lbl = QLabel(u'\u03c9   ')
         self.omega = QLabel()
         for w in [self.pc_lbl, self.pc,
                   self.Tc_lbl, self.Tc,
@@ -231,7 +231,7 @@ class PengTab(QWidget):
 
     def add_mol(self):
         """open dialog box for user to input new mol props"""
-        newm = NewMolecule(self.parent())
+        newm = NewMolecule(self.parent(), self.mol_props.keys())
         newm.exec_()
         if newm.passed:
             name = newm.name.text()
