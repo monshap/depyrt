@@ -19,10 +19,14 @@ class PengRobinsonEOS():
 
     def calc_v(self, p, T, root='vapor'):
         """ c1 * v^3 + c2 * v^2 + c3 * v + c4 = 0 """
-        a = 0.45724 * (self.R * self.Tc)**2 / self.pc
-        b = 0.07780 * self.R * self.Tc / self.pc
-        Tr = T / self.Tc
-        alpha = (1 + self.kappa * (1 - np.sqrt(Tr)))**2
+        # if Tc is set to 0, EOS behaves as Ideal Gas
+        if self.Tc == 0:
+            a = b = alpha = 0
+        else:
+            a = 0.45724 * (self.R * self.Tc)**2 / self.pc
+            b = 0.07780 * self.R * self.Tc / self.pc
+            Tr = T / self.Tc
+            alpha = (1 + self.kappa * (1 - np.sqrt(Tr)))**2
 
         c1 = p
         c2 = p * b - self.R * T
