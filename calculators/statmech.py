@@ -58,7 +58,7 @@ ammonia = {'theta_v': theta_v,
            }
 
 
-def make_props_calculator(props_dict):
+def statmech_calculator(props_dict):
     """General function to create a property calculator for a molecule"""
     # use BaseProps to ensure all keys are present in dict
     b = BaseProps(props_dict)
@@ -253,6 +253,6 @@ class NonlinearProps(BaseProps):
         return sum([term1, term2, term3, term4]) * Na * kb
 
 if __name__ == '__main__':
-    b = make_props_calculator(ammonia)
+    b = statmech_calculator(ammonia)
     sol = b.calc_all(200, 0.277)
     sol2 = b.calc_all(450, 0.0179)
