@@ -81,8 +81,3 @@ class NewMolecule(QDialog):
             widget.setStyleSheet('background-color: lightgreen;')
             widget.passed = True
         widget.setFont(self.font)
-
-app = QApplication([])
-t = NewMolecule(None, ['apple'])
-t.show()
-app.exec_()
