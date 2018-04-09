@@ -14,16 +14,16 @@ class NewMolecule(QDialog):
         self.setFont(QFont('SansSerif', 15))
         form = QFormLayout()
         self.name = QLineEdit()
-        self.pc = QLineEdit()
         self.Tc = QLineEdit()
+        self.pc = QLineEdit()
         self.omega = QLineEdit()
         self.okay = QPushButton('Save')
-        for w in [self.name, self.pc, self.Tc, self.omega]:
+        for w in [self.name, self.Tc, self.pc, self.omega]:
             w.setAlignment(QtCore.Qt.AlignCenter)
 
         form.addRow('Name:', self.name)
-        form.addRow('Pc:', self.pc)
         form.addRow('Tc:', self.Tc)
+        form.addRow('Pc:', self.pc)
         form.addRow('Omega:', self.omega)
         form.addWidget(self.okay)
 
