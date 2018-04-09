@@ -4,7 +4,6 @@ from PyQt5 import *
 from PyQt5.QtWidgets import *
 import json
 from calculators import statmech_calculator
-from .newmol import NewMolecule
 
 """ global positioning params """
 cen = QtCore.Qt.AlignHCenter

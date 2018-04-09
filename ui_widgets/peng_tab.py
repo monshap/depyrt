@@ -4,7 +4,7 @@ from PyQt5 import *
 from PyQt5.QtWidgets import *
 import json
 from calculators import PengRobinsonEOS
-from .newmol import NewMolecule
+from .peng_newmol import NewMolecule
 
 """ global positioning params """
 cen = QtCore.Qt.AlignHCenter
