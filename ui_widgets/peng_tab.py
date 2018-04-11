@@ -37,8 +37,9 @@ class PengTab(QWidget):
 
         # main message
         self.title = QLabel('Peng Robinson Volume Calculator')
-        self.title.setFixedHeight(40)
+        self.title.setFixedSize(600, 40)
         self.title.setFont(QFont('SansSerif', 18, QtGui.QFont.Bold))
+        self.title.setAlignment(QtCore.Qt.AlignCenter)
 
         # molecule selection
         self.mol_lbl = QLabel('Molecule:')
@@ -57,9 +58,9 @@ class PengTab(QWidget):
 
         # buttons to add & remove molecule data
         self.add = QPushButton('Add Molecule')
-        self.add.setFixedSize(300, 40)
+        self.add.setFixedHeight(40)
         self.rem = QPushButton('Remove Selected')
-        self.rem.setFixedSize(300, 40)
+        self.rem.setFixedHeight(40)
 
         # current molecular data
         self.Tc_lbl = QLabel('Tc')
@@ -112,10 +113,12 @@ class PengTab(QWidget):
         root.addWidget(self.vap)
         root.setAlignment(cen)
 
+        lay.setColumnStretch(0, 0.5)
+
         # use row counter to easily change order of widgets
         row = 0
 
-        lay.addWidget(self.title, row, 1, 1, 2, top | cen)
+        lay.addWidget(self.title, row, 1, 1, 2, cen)
         row += 1
 
         lay.addWidget(self.mol_lbl, row, 0, right)
@@ -123,8 +126,8 @@ class PengTab(QWidget):
         row += 1
 
         lay.setRowStretch(row, 0.1)
-        lay.addWidget(self.add, row, 1, 1, 2, left)
-        lay.addWidget(self.rem, row, 1, 1, 2, right)
+        lay.addWidget(self.add, row, 1)
+        lay.addWidget(self.rem, row, 2)
         row += 1
 
         lay.addWidget(self.Tc_lbl, row, 1, 1, 2, left)
@@ -158,80 +161,77 @@ class PengTab(QWidget):
         lay.addWidget(self.Z, row, 1, 1, 2, cen)
 
         # overall layout formatting
-        lay.setSpacing(40)
-        lay.setContentsMargins(5, 50, 100, 50)
+        lay.setVerticalSpacing(40)
+        lay.setHorizontalSpacing(40)
+        lay.setContentsMargins(5, 30, 100, 50)
         self.setLayout(lay)
 
-        @QtCore.pyqtSlot()
-        def calculate():
-            success = True
-            p = 0
-            T = 0
-            try:
-                p = float(self.p.text())
-                T = float(self.T.text())
-            except:
-                success = False
-            if p <= 0 or T <= 0:
-                success = False
-            if not success:
-                self.V.setText('')
-                self.V.setStyleSheet('background-color: white;')
-                self.Z.setText('')
-                self.Z.setStyleSheet('background-color: white;')
-            else:
-                root = 'vapor' if self.vap.isChecked() else 'liquid'
-                val = self.calculator.calc_v(p, T, root)
-                val_str = '%.3f' if 100 > val > 1 else '%.3e'
-                self.V.setText(val_str % val)
-                self.V.setStyleSheet('background-color: lightgreen;')
-                z = p * val / (self.calculator.R * T)
-                z_str = '%.3f' if z >= 0.1 else '%.3e'
-                self.Z.setText(z_str % z)
-                self.Z.setStyleSheet('background-color: lightgreen;')
+        self.make_calc()
+        self.add.clicked.connect(self.add_clicked)
+        self.mol.currentTextChanged.connect(self.make_calc)
 
-        @QtCore.pyqtSlot()
-        def add_clicked():
-            success = self.add_mol()
-            if success:
-                make_calc()
+        self.p.textChanged.connect(self.calculate)
+        self.T.textChanged.connect(self.calculate)
+        self.vap.toggled.connect(self.calculate)
+        self.rem.clicked.connect(self.remove_mol)
 
-        @QtCore.pyqtSlot()
-        def make_calc():
-            molecule = self.mol.currentText()
-            props = self.mol_props[molecule]
-            self.calculator = PengRobinsonEOS(props['pc'],
-                                              props['Tc'],
-                                              props['omega'])
-            self.pc.setText('%.2f' % props['pc'])
-            self.Tc.setText('%.2f' % props['Tc'])
-            self.omega.setText('%.3f' % props['omega'])
-            self.peng_prev_ind = self.mol.currentIndex()
-            calculate()
+    def calculate(self):
+        success = True
+        p = 0
+        T = 0
+        try:
+            p = float(self.p.text())
+            T = float(self.T.text())
+        except:
+            success = False
+        if p <= 0 or T <= 0:
+            success = False
+        if not success:
+            self.V.setText('')
+            self.V.setStyleSheet('background-color: white;')
+            self.Z.setText('')
+            self.Z.setStyleSheet('background-color: white;')
+        else:
+            root = 'vapor' if self.vap.isChecked() else 'liquid'
+            val = self.calculator.calc_v(p, T, root)
+            val_str = '%.3f' if 100 > val > 1 else '%.3e'
+            self.V.setText(val_str % val)
+            self.V.setStyleSheet('background-color: lightgreen;')
+            z = p * val / (self.calculator.R * T)
+            z_str = '%.3f' if z >= 0.1 else '%.3e'
+            self.Z.setText(z_str % z)
+            self.Z.setStyleSheet('background-color: lightgreen;')
 
-        @QtCore.pyqtSlot()
-        def remove_mol():
-            text = self.mol.currentText()
-            ind = self.mol.currentIndex()
-            if text in ['Ammonia (NH3)', 'Methane (CH4)']:
-                QMessageBox(QMessageBox.Information, " ",
-                            "Sorry, you aren't allowed to remove %s" % text,
-                            QMessageBox.Ok).exec_()
-                return
+    def add_clicked(self):
+        success = self.add_mol()
+        if success:
+            make_calc()
 
+    def make_calc(self):
+        molecule = self.mol.currentText()
+        props = self.mol_props[molecule]
+        self.calculator = PengRobinsonEOS(props['pc'],
+                                          props['Tc'],
+                                          props['omega'])
+        self.pc.setText('%.2f' % props['pc'])
+        self.Tc.setText('%.2f' % props['Tc'])
+        self.omega.setText('%.3f' % props['omega'])
+        self.peng_prev_ind = self.mol.currentIndex()
+        self.calculate()
+
+    def remove_mol(self):
+        text = self.mol.currentText()
+        ind = self.mol.currentIndex()
+        if text in ['Ammonia (NH3)', 'Chloromethane (CH3CL)',
+                    'Methane (CH4)']:
+            QMessageBox(QMessageBox.Information, " ",
+                        "Sorry, you aren't allowed to remove %s" % text,
+                        QMessageBox.Ok).exec_()
+        else:
             self.mol_props.pop(text)
             self.save_mol_props()
             self.mol.setCurrentIndex(0)
             self.mol.removeItem(ind)
-
-        make_calc()
-        self.add.clicked.connect(add_clicked)
-        self.mol.currentTextChanged.connect(make_calc)
-
-        self.p.textChanged.connect(calculate)
-        self.T.textChanged.connect(calculate)
-        self.vap.toggled.connect(calculate)
-        self.rem.clicked.connect(remove_mol)
 
     def add_mol(self):
         """open dialog box for user to input new mol props"""
