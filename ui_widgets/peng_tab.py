@@ -205,7 +205,7 @@ class PengTab(QWidget):
     def add_clicked(self):
         success = self.add_mol()
         if success:
-            make_calc()
+            self.make_calc()
 
     def make_calc(self):
         molecule = self.mol.currentText()
@@ -222,8 +222,9 @@ class PengTab(QWidget):
     def remove_mol(self):
         text = self.mol.currentText()
         ind = self.mol.currentIndex()
-        if text in ['Ammonia (NH3)', 'Chloromethane (CH3CL)',
-                    'Methane (CH4)']:
+        if text in ['Ammonia (NH3)',
+                    'Carbon Dioxide (CO2)',
+                    'Chloromethane (CH3Cl)']:
             QMessageBox(QMessageBox.Information, " ",
                         "Sorry, you aren't allowed to remove %s" % text,
                         QMessageBox.Ok).exec_()
