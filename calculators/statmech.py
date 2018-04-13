@@ -30,7 +30,7 @@ props_needed = ['theta_v', 'theta_r', 'sigma', 'W0', 'D0', 'Mw', 'type']
 
 """ Ammonia (NH3) Properties """
 # characteristic vibrational temperatures
-theta_v = [1360, 4800, 4880, 48880, 2330, 2330]
+theta_v = [1360, 4800, 4880, 4880, 2330, 2330]
 
 # characteristic rotational temperatures
 theta_r = [13.6, 13.6, 8.92]
@@ -42,7 +42,7 @@ sigma = 3
 W0 = 1
 
 # dissociation energy (J / mol)
-D0 = 370.7 * 4186.8
+D0 = 276.8 * 4186.8
 
 # molecular weight (g / mol)
 Mw = 17.
@@ -144,10 +144,7 @@ class LinearProps(BaseProps):
         T, V = list(map(float, [T, V]))
         kbT = kb * T
 
-        # mass (kg)
-        m = self.Mw / 1000.
-
-        term1 = ln((2 * pi * m * kbT / h**2)**(1.5) * (V * e / Na))
+        term1 = ln((2 * pi * self.Mwm * kbT / h**2)**(1.5) * (V * e / Na))
         term2 = ln(T / (self.sigma * self.theta_r))
         term3 = self.D0m / kbT
         term4 = ln(self.W0)
@@ -175,15 +172,14 @@ class LinearProps(BaseProps):
         term3 = sum([(vj / T)**2 * (exp(vj / T) / (exp(vj / T) - 1)**2)
                      for vj in self.theta_v])
 
-        return sum([term1, term2, term3]) * N * kb
+        return sum([term1, term2, term3]) * Na * kb
 
     def get_S(self, T, V):
         T, V = list(map(float, [T, V]))
 
-        # mass (kg)
-        m = self.Mw / 1000.
-
-        term1 = ln(((2 * pi * m * kb * T) / h**2)**(1.5) * (V * exp(2.5) / Na))
+        term1 = ln(((2 * pi * self.Mwm * kb * T) / h**2)**(1.5) *
+                   (V * exp(2.5) / Na)
+                   )
         term2 = ln(T * e / (self.sigma * self.theta_r))
         term3 = ln(self.W0)
         term4 = sum([((vj / T) / ((exp(vj / T) - 1))) - ln(1 - exp(-vj / T))
@@ -205,10 +201,7 @@ class NonlinearProps(BaseProps):
         T, V = list(map(float, [T, V]))
         kbT = kb * T
 
-        # mass (kg)
-        m = self.Mw / 1000.
-
-        term1 = ln((2 * pi * m * kbT / h**2)**(1.5) * (V * e / Na))
+        term1 = ln((2 * pi * self.Mwm * kbT / h**2)**(1.5) * (V * e / Na))
         term2 = ln((1 / self.sigma) * ((pi * T**3 / self.theta_r3)**0.5))
         term3 = self.D0m / kbT
         term4 = ln(self.W0)
@@ -241,10 +234,9 @@ class NonlinearProps(BaseProps):
     def get_S(self, T, V):
         T, V = list(map(float, [T, V]))
 
-        # mass (kg)
-        m = self.Mw / 1000.
-
-        term1 = ln((2 * pi * m * kb * T / h**2)**(1.5) * (V * exp(2.5) / Na))
+        term1 = ln((2 * pi * self.Mwm * kb * T / h**2)**(1.5) *
+                   (V * exp(2.5) / Na)
+                   )
         term2 = ln((1 / self.sigma) * (pi * T**3 * e**3 / self.theta_r3)**0.5)
         term3 = ln(self.W0)
         term4 = sum([((vj / T) / (exp(vj / T) - 1)) - ln(1 - exp(-vj / T))
@@ -253,6 +245,13 @@ class NonlinearProps(BaseProps):
         return sum([term1, term2, term3, term4]) * Na * kb
 
 if __name__ == '__main__':
+    t1 = 200.
+    p1 = 0.06
+    v1 = 8.314 * t1 / (p1 * 1E5)
+
+    t2 = 450.
+    p2 = 2.09
+    v2 = 8.314 * t2 / (p2 * 1E5)
     b = statmech_calculator(ammonia)
-    sol = b.calc_all(200, 0.277)
-    sol2 = b.calc_all(450, 0.0179)
+    sol = b.calc_all(t1, v1)
+    sol2 = b.calc_all(t2, v2)
