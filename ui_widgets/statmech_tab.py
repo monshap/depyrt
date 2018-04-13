@@ -182,7 +182,10 @@ class StatMechTab(QWidget):
                 raise ValueError('Cannot be negative')
             name = self.mol.currentText()
             self.calculator = statmech_calculator(self.statmech_props[name])
-            sol = self.calculator.calc_all(T, p)
+
+            # convert pressure (bar) to ideal volume in m^3
+            v_id = 8.314 * T / (p * 1E5)
+            sol = self.calculator.calc_all(T, v_id)
 
             # set potentials
             for p in self.potentials:
