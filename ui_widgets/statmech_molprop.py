@@ -58,15 +58,16 @@ class StatMechInfo(QDialog):
 
         # characteristic vibrational temperature(s)
         self.theta_v_lbl = QLabel(u'\u03f4\u1d65:')
-        self.theta_v = QLabel(', '.join([str(i)
-                                         for i
-                                         in self.props['theta_v']]) + ' K')
+        txt = ', '.join([str(int(i))
+                         for i
+                         in sorted(self.props['theta_v'])]) + ' K'
+        self.theta_v = QLabel(txt)
 
         # characteristic rotational temperature(s)
         self.theta_r_lbl = QLabel(u'\u03f4\u1d63:')
         r = self.props['theta_r']
         if isinstance(r, list):
-            val = ', '.join([str(i) for i in r])
+            val = ', '.join([str(i) for i in sorted(r)])
         else:
             val = str(r)
         val += ' K'
