@@ -13,7 +13,7 @@ try:
     from .statmech_molprop import StatMechInfo
     from calculators import statmech_calculator
 except:
-    from statmech_molprop import StatMechInfo
+    from .statmech_molprop import StatMechInfo
     from depyrt.calculators import statmech_calculator
 
 """ global positioning params """
@@ -163,6 +163,7 @@ class StatMechTab(QWidget):
 
         # button methods
         self.calculate()
+        self.mol.currentTextChanged.connect(self.calculate)
         self.mol_info.clicked.connect(self.get_info)
         self.rem.clicked.connect(self.remove_mol)
         self.T.textChanged.connect(self.calculate)
@@ -214,20 +215,21 @@ class StatMechTab(QWidget):
     def remove_mol(self):
         text = self.mol.currentText()
         ind = self.mol.currentIndex()
-        if text in ['Ammonia (NH3)', 'Chloromethane (CH3CL)',
-                    'Methane (CH4)']:
+        if text in ['Ammonia (NH3)',
+                    'Carbon Dioxide (CO2)',
+                    'Chloromethane (CH3Cl)']:
             QMessageBox(QMessageBox.Information, " ",
                         "Sorry, you aren't allowed to remove %s" % text,
                         QMessageBox.Ok).exec_()
         else:
-            self.mol_props.pop(text)
+            self.statmech_props.pop(text)
             self.save_mol_props()
             self.mol.setCurrentIndex(0)
             self.mol.removeItem(ind)
 
     def save_mol_props(self):
         with open(self.prop_path, 'w') as f:
-            json.dump(self.mol_props, f)
+            json.dump(self.statmech_props, f)
 
 if __name__ == '__main__':
     app = QApplication.instance()
