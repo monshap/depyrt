@@ -167,7 +167,7 @@ class PengTab(QWidget):
         self.setLayout(lay)
 
         self.make_calc()
-        self.add.clicked.connect(self.add_clicked)
+        self.add.clicked.connect(self.add_mol)
         self.mol.currentTextChanged.connect(self.make_calc)
 
         self.p.textChanged.connect(self.calculate)
@@ -208,11 +208,6 @@ class PengTab(QWidget):
             z_str = '%.3f' if z >= 0.1 else '%.3e'
             self.Z.setText(z_str % z)
             self.Z.setStyleSheet('background-color: lightgreen;')
-
-    def add_clicked(self):
-        success = self.add_mol()
-        if success:
-            self.make_calc()
 
     def make_calc(self):
         molecule = self.mol.currentText()
@@ -258,11 +253,7 @@ class PengTab(QWidget):
                                  QtCore.Qt.AlignCenter,
                                  QtCore.Qt.TextAlignmentRole
                                  )
-
             self.mol.setCurrentText(name)
-            return True
-        else:
-            return False
 
     def save_mol_props(self):
         with open(self.prop_path, 'w') as f:
