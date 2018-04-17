@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from .peng_tab import PengTab
 from .statmech_tab import StatMechTab
+from .depart_tab import DepartTab
 try:
     from PyQt4.QtGui import *
     from PyQt4 import *
@@ -12,6 +13,6 @@ except:
 #           TabObject, 'Tab Title in UI'
 all_tabs = [(PengTab, "PengRob Volume"),
             (StatMechTab, "StatMech Props"),
-            (QWidget, "Departure Functions"),
+            (DepartTab, "Departure Functions"),
             (QWidget, u"\u2206" + "E's of Gas")
             ]
