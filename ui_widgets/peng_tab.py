@@ -8,7 +8,7 @@ except:
     from PyQt5.QtWidgets import *
 import json
 from calculators import PengRobinsonEOS
-from .peng_newmol import NewMolecule
+from .peng_newmol import PengNewMolecule
 
 """ global positioning params """
 cen = QtCore.Qt.AlignHCenter
@@ -63,9 +63,9 @@ class PengTab(QWidget):
         self.rem.setFixedHeight(40)
 
         # current molecular data
-        self.Tc_lbl = QLabel('Tc')
+        self.Tc_lbl = QLabel('Tc (K)')
         self.Tc = QLabel()
-        self.pc_lbl = QLabel('Pc')
+        self.pc_lbl = QLabel('Pc (bar)')
         self.pc = QLabel()
         self.omega_lbl = QLabel(u'\u03c9   ')
         self.omega = QLabel()
@@ -193,7 +193,14 @@ class PengTab(QWidget):
             self.Z.setStyleSheet('background-color: white;')
         else:
             root = 'vapor' if self.vap.isChecked() else 'liquid'
-            val = self.calculator.calc_v(p, T, root)
+            vals = self.calculator.calc_v(p, T)
+            if len(vals) == 1:
+                self.vap.setDisabled(True)
+                self.liq.setDisabled(True)
+            else:
+                self.vap.setEnabled(True)
+                self.liq.setEnabled(True)
+            val = max(vals) if root == 'vapor' else min(vals)
             val_str = '%.3f' if 100 > val > 1 else '%.3e'
             self.V.setText(val_str % val)
             self.V.setStyleSheet('background-color: lightgreen;')
@@ -236,7 +243,7 @@ class PengTab(QWidget):
 
     def add_mol(self):
         """open dialog box for user to input new mol props"""
-        newm = NewMolecule(self.parent(), self.mol_props.keys())
+        newm = PengNewMolecule(self.parent(), self.mol_props.keys())
         newm.exec_()
         if newm.passed:
             name = newm.name.text()

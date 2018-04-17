@@ -7,10 +7,10 @@ except:
     from PyQt5.QtWidgets import *
 
 
-class NewMolecule(QDialog):
+class PengNewMolecule(QDialog):
     def __init__(self, parent, taken_names):
         cl = QtCore.Qt.WindowCloseButtonHint
-        super(NewMolecule, self).__init__(parent, cl)
+        super(PengNewMolecule, self).__init__(parent, cl)
         self.setFixedSize(400, 200)
         self.setWindowTitle('New Molecule')
 
