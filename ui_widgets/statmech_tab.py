@@ -207,7 +207,10 @@ class StatMechTab(QWidget):
 
         except (TypeError, ValueError, OverflowError):
             for p in self.potentials:
-                getattr(self, p[0]).setText('')
+                attr = getattr(self, p[0])
+                attr.setText('')
+                attr.setStyleSheet('background-color: white;')
+                attr.setFont(self.font)
 
     def get_info(self):
         name = self.mol.currentText()
