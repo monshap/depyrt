@@ -11,7 +11,7 @@ class PengNewMolecule(QDialog):
     def __init__(self, parent, taken_names):
         cl = QtCore.Qt.WindowCloseButtonHint
         super(PengNewMolecule, self).__init__(parent, cl)
-        self.setFixedSize(400, 200)
+        self.setFixedSize(400, 250)
         self.setWindowTitle('New Molecule')
 
         self.taken_names = taken_names
