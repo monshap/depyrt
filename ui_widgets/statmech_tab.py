@@ -9,11 +9,12 @@ except:
 import os
 import sys
 import json
+import re
+from .statmech_molprop import StatMechInfo
+from .statmech_newmol import StatMechNewMolecule
 try:
-    from .statmech_molprop import StatMechInfo
     from calculators import statmech_calculator
 except:
-    from .statmech_molprop import StatMechInfo
     from depyrt.calculators import statmech_calculator
 
 """ global positioning params """
@@ -165,6 +166,7 @@ class StatMechTab(QWidget):
         self.calculate()
         self.mol.currentTextChanged.connect(self.calculate)
         self.mol_info.clicked.connect(self.get_info)
+        self.add.clicked.connect(self.add_mol)
         self.rem.clicked.connect(self.remove_mol)
         self.T.textChanged.connect(self.calculate)
         self.p.textChanged.connect(self.calculate)
@@ -212,6 +214,42 @@ class StatMechTab(QWidget):
         info_ui = StatMechInfo(self.parent(), name, self.statmech_props[name])
         info_ui.exec_()
 
+    def add_mol(self):
+        add_ui = StatMechNewMolecule(self.parent(),
+                                     self.statmech_props.keys())
+        add_ui.exec_()
+        if add_ui.passed:
+            name = add_ui.name.text()
+            typ = 'linear' if add_ui.linear.isChecked() else 'nonlinear'
+            info = {'type': typ,
+                    'Mw': float(add_ui.mw.text()),
+                    'D0': float(add_ui.D0.text()),
+                    'W0': float(add_ui.W0.text()),
+                    'sigma': float(add_ui.sigma.text())
+                    }
+
+            # format vib & rot into proper lists
+            for temp in ['theta_v', 'theta_r']:
+                text = getattr(add_ui, temp).text().replace(',', ' ').split()
+                vals = []
+                for t in text:
+                    if '(' not in t:
+                        vals.append(float(t))
+                    else:
+                        reg = '^(.+)\(([0-9]+)\)$'
+                        v, n = re.findall(reg, t)[0]
+                        vals += [float(v)] * int(n)
+                info[temp] = sorted(vals)
+            self.statmech_props[name] = info
+            self.save_mol_props()
+            index = self.mol.count()
+            self.mol.insertItem(index, name)
+            self.mol.setItemData(index,
+                                 QtCore.Qt.AlignCenter,
+                                 QtCore.Qt.TextAlignmentRole
+                                 )
+            self.mol.setCurrentText(name)
+
     def remove_mol(self):
         text = self.mol.currentText()
         ind = self.mol.currentIndex()
@@ -229,7 +267,7 @@ class StatMechTab(QWidget):
 
     def save_mol_props(self):
         with open(self.prop_path, 'w') as f:
-            json.dump(self.statmech_props, f)
+            json.dump(self.statmech_props, f, indent=4, sort_keys=True)
 
 if __name__ == '__main__':
     app = QApplication.instance()
