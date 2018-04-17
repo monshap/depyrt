@@ -266,4 +266,4 @@ class PengTab(QWidget):
 
     def save_mol_props(self):
         with open(self.prop_path, 'w') as f:
-            json.dump(self.mol_props, f)
+            json.dump(self.mol_props, f, indent=4, sort_keys=True)

@@ -1,1 +1,17 @@
-{"Chloromethane (CH3Cl)": {"pc": 65.9, "omega": 0.156, "Tc": 416.3}, "Carbon Dioxide (CO2)": {"pc": 73.8, "omega": 0.239, "Tc": 304.18}, "Ammonia (NH3)": {"pc": 113.53, "omega": 0.257, "Tc": 405.4}}
+{
+    "Ammonia (NH3)": {
+        "Tc": 405.4, 
+        "omega": 0.257, 
+        "pc": 113.53
+    }, 
+    "Carbon Dioxide (CO2)": {
+        "Tc": 304.18, 
+        "omega": 0.239, 
+        "pc": 73.8
+    }, 
+    "Chloromethane (CH3Cl)": {
+        "Tc": 416.3, 
+        "omega": 0.156, 
+        "pc": 65.9
+    }
+}
