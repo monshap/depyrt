@@ -12,15 +12,8 @@ class Departure(PengRobinsonEOS, object):
         super(Departure, self).__init__(pc, Tc, omega)
 
         # List of methods to calculate individual departure functions
-<<<<<<< HEAD
-        self.methods = [i
-                        for i
-                        in dir(self) if i.startswith('calc_') and i != 'calc_v'
-                        ]
-=======
         self.methods = [i for i in dir(self) if i.startswith('calc_') and
                         i != 'calc_v']
->>>>>>> dev/eos
 
     def check_peng(self, p, T, root='vapor'):
         # Check if state has changed and if so, recalculate PR EOS properties
@@ -147,9 +140,6 @@ if __name__ == '__main__':
     T = 273.15   # K
 
     me_sleepy = Departure(pc, Tc, omega)
-<<<<<<< HEAD
-    x = me_sleepy.get_all(p, T)
-=======
     x = me_sleepy.get_all(0.06, 200, 'liquid')
     x2 = me_sleepy.get_all(2.09, 450)
 
@@ -168,4 +158,3 @@ if __name__ == '__main__':
     print('\n\nReal Differences')
     for d in diff_real:
         print('%s: %.3f' % (d, diff_real[d]))
->>>>>>> dev/eos
