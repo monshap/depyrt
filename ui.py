@@ -18,12 +18,16 @@ class ThermoProjectGUI(QTabWidget):
         self.setFont(QFont('SansSerif', 14))
         self.setWindowTitle('Thermo Project')
 
+    def tab_changed(self, i):
+        self.currentWidget().update()
+
     def run(self):
         # NOTE tab titles are created in ui_widgets/__init__.py
         # iterate through all tabs
         for tab in all_tabs:
             # initialize tab and add to main
             self.addTab(tab[0](self), tab[1])
+        self.currentChanged.connect(self.tab_changed)
         self.show()
 
 
