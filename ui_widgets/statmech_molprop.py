@@ -29,6 +29,18 @@ class StatMechInfo(QDialog):
 
         self.build_layout()
 
+    def __char_temps__(self, vals, asint=True):
+        sol = []
+        for v in sorted(list(set(vals))):
+            if asint:
+                sol.append(str(int(v)))
+            else:
+                sol.append('%.1f' % v)
+            c = vals.count(v)
+            if c > 1:
+                sol[-1] += '(%i)' % c
+        return sol
+
     def build_layout(self):
         lay = QGridLayout()
 
@@ -58,20 +70,18 @@ class StatMechInfo(QDialog):
 
         # characteristic vibrational temperature(s)
         self.theta_v_lbl = QLabel(u'\u03f4\u1d65:')
-        txt = ', '.join([str(int(i))
-                         for i
-                         in sorted(self.props['theta_v'])]) + ' K'
-        self.theta_v = QLabel(txt)
+        txtv = '  '.join(self.__char_temps__(self.props['theta_v']))
+        self.theta_v = QLabel(txtv)
 
         # characteristic rotational temperature(s)
         self.theta_r_lbl = QLabel(u'\u03f4\u1d63:')
         r = self.props['theta_r']
         if isinstance(r, list):
-            val = ', '.join([str(i) for i in sorted(r)])
+            txtr = '  '.join(self.__char_temps__(r, False))
         else:
-            val = str(r)
-        val += ' K'
-        self.theta_r = QLabel(val)
+            txtr = str(r)
+        txtr += ' K'
+        self.theta_r = QLabel(txtr)
 
         row = 0
         lay.setColumnStretch(1, 3)

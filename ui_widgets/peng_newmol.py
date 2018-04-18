@@ -72,11 +72,13 @@ class PengNewMolecule(QDialog):
             self.name.passed = True
         self.name.setFont(self.font)
 
-    def check_posnum(self, widget, canbe0=True):
+    def check_posnum(self, widget, canbe0=True, lim=1e6):
         t = widget.text()
         try:
             t = float(t)
             if t == 0 and not canbe0 or t < 0:
+                raise ValueError()
+            if t >= lim:
                 raise ValueError()
         except:
             widget.setStyleSheet('background-color: salmon;')

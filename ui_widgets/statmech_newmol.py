@@ -24,11 +24,11 @@ class StatMechNewMolecule(QDialog):
         self.font = QFont('SansSerif', 14)
         self.setFont(self.font)
         self.setWindowTitle('New Molecule')
-
+        self.passed = False
         self.taken_names = taken_names
 
         # regex pattern to match rot & vib inputs
-        self.rv_regex = '^[0-9]+\.?[0-9]*(\([1-9][0-9]*\))?$'
+        self.rv_regex = '^[0-9]+\.?[0-9]*(\([1-9][0-9]\))?$'
 
         self.build_layout()
 
@@ -83,8 +83,8 @@ class StatMechNewMolecule(QDialog):
         self.name.textEdited.connect(self.check_name)
         self.mw.textEdited.connect(lambda f: self.isposfloat(self.mw))
         self.D0.textEdited.connect(lambda f: self.isposfloat(self.D0))
-        self.W0.textEdited.connect(lambda f: self.isposfloat(self.W0))
-        self.sigma.textEdited.connect(lambda f: self.isposfloat(self.sigma))
+        self.W0.textEdited.connect(lambda f: self.isint(self.W0))
+        self.sigma.textEdited.connect(lambda f: self.isint(self.sigma))
         self.theta_v.textEdited.connect(lambda f: self.check_rv(self.theta_v))
         self.theta_r.textEdited.connect(lambda f: self.check_rv(self.theta_r))
         self.okay.clicked.connect(self.check_all)
@@ -124,12 +124,26 @@ class StatMechNewMolecule(QDialog):
             self.name.passed = True
         self.name.setFont(self.font)
 
-    def isposfloat(self, widget):
+    def isint(self, widget, lim=1000):
+        widget.passed = False
+        text = widget.text()
+        try:
+            if int(text) - float(text) == 0 and int(text) < lim:
+                widget.setStyleSheet('background-color: lightgreen;')
+                widget.setFont(self.font)
+                widget.passed = True
+            else:
+                raise ValueError()
+        except:
+            widget.setStyleSheet('background-color: salmon')
+            widget.setFont(self.font)
+
+    def isposfloat(self, widget, lim=1e6):
         widget.passed = False
         text = widget.text()
         try:
             val = float(text)
-            if val <= 0:
+            if val <= 0 or val >= lim:
                 raise ValueError('Number must be positive')
             widget.setStyleSheet('background-color: lightgreen;')
             widget.setFont(self.font)
@@ -138,10 +152,12 @@ class StatMechNewMolecule(QDialog):
             widget.setStyleSheet('background-color: salmon')
             widget.setFont(self.font)
 
-    def check_rv(self, widget):
+    def check_rv(self, widget, lim=30):
         widget.passed = False
         text = widget.text()
         vals = text.replace(',', ' ').split()
+        if len(vals) >= lim:
+            return
         for v in vals:
             if not re.match(self.rv_regex, v):
                 widget.setStyleSheet('background-color: salmon;')
