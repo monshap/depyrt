@@ -1,6 +1,9 @@
 from __future__ import absolute_import
-from peng import PengRobinsonEOS
 import numpy as np
+if __name__ == '__main__':
+    from peng import PengRobinsonEOS
+else:
+    from .peng import PengRobinsonEOS
 
 
 class Departure(PengRobinsonEOS):
@@ -24,8 +27,11 @@ class Departure(PengRobinsonEOS):
     def calc_S(self, p, T):
         # Calculate entropy residual
         self.check_peng(p, T)
-        B = self.b
-        return 1
+        B = self.p * self.b / (self.R * self.T)
+        f1 = (self.z + (1 + np.sqrt(2)) * B) / (self.z + (1 - np.sqrt(2)) * B)
+        s1 = self.R * np.log(self.z - B)
+        s2 = self.dadT * np.log(f1) / (2**(3/2) * self.b)
+        return -s1 - s2
 
     def calc_H(self, p, T):
         # Calculate entropy residual
@@ -70,5 +76,5 @@ if __name__ == '__main__':
     p = 1.01325  # bar
     T = 273.15   # K
 
-    me_sleepy = Departure({'pc': pc, 'Tc': Tc, 'omega': omega})
+    me_sleepy = Departure(pc, Tc, omega)
     x = me_sleepy.get_all(p, T)
