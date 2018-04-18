@@ -28,6 +28,13 @@ class PengRobinsonEOS():
             Tr = T / self.Tc
             alpha = (1 + self.kappa * (1 - np.sqrt(Tr)))**2
 
+        # set p, T, a, b, and alpha attributes
+        self.p = p
+        self.T = T
+        self.a = a
+        self.b = b
+        self.alpha = alpha
+
         c1 = p
         c2 = p * b - self.R * T
         c3 = a * alpha - 3 * p * b**2 - 2 * self.R * T * b
@@ -49,7 +56,10 @@ class PengRobinsonEOS():
         # return appropriate root depending on phase
         if not root:
             return vs
-        return max(vs) if root.lower() in 'vapor' else min(vs)
+        else:
+            self.v = max(vs) if root.lower() in 'vapor' else min(vs)
+            self.z = p * self.v / (self.R * T)
+            return self.v
 
 if __name__ == '__main__':
     # Ammonia (NH_3) props
