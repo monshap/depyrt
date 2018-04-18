@@ -204,7 +204,7 @@ class PengTab(QWidget):
             val_str = '%.3f' if 100 > val > 1 else '%.3e'
             self.V.setText(val_str % val)
             self.V.setStyleSheet('background-color: lightgreen;')
-            z = self.calculator.z
+            z = p * val / (self.calculator.R * T)
             z_str = '%.3f' if z >= 0.1 else '%.3e'
             self.Z.setText(z_str % z)
             self.Z.setStyleSheet('background-color: lightgreen;')
