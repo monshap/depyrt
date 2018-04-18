@@ -21,14 +21,14 @@ class PengRobinsonEOS():
         """ c1 * v^3 + c2 * v^2 + c3 * v + c4 = 0 """
         # if Tc is set to 0, EOS behaves as Ideal Gas
         if self.Tc == 0:
-            a = b = alpha = 0
+            a = b = alpha = dadT = 0
         else:
             a = 0.45724 * (self.R * self.Tc)**2 / self.pc
             b = 0.07780 * self.R * self.Tc / self.pc
             Tr = T / self.Tc
             alpha = (1 + self.kappa * (1 - np.sqrt(Tr)))**2
             dadT = -0.45724 * (self.R**2 * self.Tc**2) * self.kappa / self.pc \
-                * np.sqrt(self.alpha / (self.T * self.Tc))
+                * np.sqrt(alpha / (T * self.Tc))
 
         # set p, T, a, b, and alpha attributes
         self.p = p

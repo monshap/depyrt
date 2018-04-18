@@ -1,15 +1,21 @@
 from __future__ import absolute_import
-from peng import PengRobinsonEOS
 import numpy as np
+if __name__ == '__main__':
+    from peng import PengRobinsonEOS
+else:
+    from .peng import PengRobinsonEOS
 
 
-class Departure(PengRobinsonEOS):
+class Departure(PengRobinsonEOS, object):
     def __init__(self, pc, Tc, omega):
         # Initialize molar properties
         super(Departure, self).__init__(pc, Tc, omega)
 
         # List of methods to calculate individual departure functions
-        self.methods = [i for i in dir(self) if i.startswith('calc_')]
+        self.methods = [i
+                        for i
+                        in dir(self) if i.startswith('calc_') and i != 'calc_v'
+                        ]
 
     def check_peng(self, p, T):
         # Check if state has changed and if so, recalculate PR EOS properties
@@ -70,5 +76,5 @@ if __name__ == '__main__':
     p = 1.01325  # bar
     T = 273.15   # K
 
-    me_sleepy = Departure({'pc': pc, 'Tc': Tc, 'omega': omega})
+    me_sleepy = Departure(pc, Tc, omega)
     x = me_sleepy.get_all(p, T)
