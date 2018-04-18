@@ -193,7 +193,7 @@ class PengTab(QWidget):
             self.Z.setStyleSheet('background-color: white;')
         else:
             root = 'vapor' if self.vap.isChecked() else 'liquid'
-            vals = self.calculator.calc_v(p, T)
+            vals = self.calculator.calc_v(p, T, None)
             if len(vals) == 1:
                 self.vap.setDisabled(True)
                 self.liq.setDisabled(True)
@@ -204,7 +204,7 @@ class PengTab(QWidget):
             val_str = '%.3f' if 100 > val > 1 else '%.3e'
             self.V.setText(val_str % val)
             self.V.setStyleSheet('background-color: lightgreen;')
-            z = p * val / (self.calculator.R * T)
+            z = self.calculator.z
             z_str = '%.3f' if z >= 0.1 else '%.3e'
             self.Z.setText(z_str % z)
             self.Z.setStyleSheet('background-color: lightgreen;')
