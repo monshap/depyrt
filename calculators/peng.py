@@ -27,6 +27,8 @@ class PengRobinsonEOS():
             b = 0.07780 * self.R * self.Tc / self.pc
             Tr = T / self.Tc
             alpha = (1 + self.kappa * (1 - np.sqrt(Tr)))**2
+            dadT = -0.45724 * (self.R**2 * self.Tc**2) * self.kappa / self.pc \
+                * np.sqrt(self.alpha / (self.T * self.Tc))
 
         # set p, T, a, b, and alpha attributes
         self.p = p
@@ -34,6 +36,7 @@ class PengRobinsonEOS():
         self.a = a
         self.b = b
         self.alpha = alpha
+        self.dadT = dadT
 
         c1 = p
         c2 = p * b - self.R * T

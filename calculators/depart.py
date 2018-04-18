@@ -1,46 +1,59 @@
 from __future__ import absolute_import
 from peng import PengRobinsonEOS
+import numpy as np
 
 
-class Departure(object):
-    def __init__(self, mol_props):
-        self.pc = mol_props['pc']
-        self.Tc = mol_props['Tc']
-        self.omega = mol_props['omega']
-        self.peng = PengRobinsonEOS(self.pc, self.Tc, self.omega)
-        self.R = self.peng.R
+class Departure(PengRobinsonEOS):
+    def __init__(self, pc, Tc, omega):
+        # Initialize molar properties
+        super(Departure, self).__init__(pc, Tc, omega)
 
+        # List of methods to calculate individual departure functions
         self.methods = [i for i in dir(self) if i.startswith('calc_')]
 
     def check_peng(self, p, T):
+        # Check if state has changed and if so, recalculate PR EOS properties
         try:
-            if (self.peng.p == p) and (self.peng.T == T):
+            if (self.p == p) and (self.T == T):
                 return
             else:
                 raise KeyError()
         except:
-            self.peng.calc_v(p, T)
+            self.calc_v(p, T)
 
     def calc_S(self, p, T):
-        self.check_peng(p, T)  # Add to all methods
+        # Calculate entropy residual
+        self.check_peng(p, T)
+        B = self.b
         return 1
 
     def calc_H(self, p, T):
+        # Calculate entropy residual
+        self.check_peng(p, T)
         return 1
 
     def calc_V(self, p, T):
+        # Calculate entropy residual
+        self.check_peng(p, T)
         return 1
 
     def calc_A(self, p, T):
+        # Calculate entropy residual
+        self.check_peng(p, T)
         return 1
 
     def calc_U(self, p, T):
+        # Calculate entropy residual
+        self.check_peng(p, T)
         return 1
 
     def calc_G(self, p, T):
+        # Calculate entropy residual
+        self.check_peng(p, T)
         return 1
 
     def get_all(self, p, T):
+        # Make dictionary of all potential residuals
         self.check_peng(p, T)
         sol = {}
         for m in self.methods:
