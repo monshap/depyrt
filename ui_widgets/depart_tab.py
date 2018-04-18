@@ -70,7 +70,7 @@ class DepartTab(QWidget):
         self.mol_lbl = QLabel('Molecule:')
         self.mol = QComboBox()
         self.mol.setToolTip('Please use PengRob Volume & StatMech Props'
-                            'to add a new molecule')
+                            ' to add a new molecule')
         self.mol.setFixedHeight(40)
         self.mol.setEditable(True)
         ledit = self.mol.lineEdit()
