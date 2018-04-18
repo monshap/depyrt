@@ -21,7 +21,7 @@ bot = QtCore.Qt.AlignBottom
 
 class DiffETab(QWidget):
     def __init__(self, *args):
-        super(DepartTab, self).__init__(*args)
+        super(DiffETab, self).__init__(*args)
         self.setFixedSize(1000, 800)
         self.font = QFont('SansSerif', 14)
         self.setFont(self.font)
@@ -40,10 +40,6 @@ class DiffETab(QWidget):
         self.peng_props = None
         self.statmech_props = None
 
-        # build combobox here to support molecule update
-        self.mol = QComboBox()
-
-        self.update()
         self.build_layout()
 
     def update(self):
@@ -64,14 +60,22 @@ class DiffETab(QWidget):
         for n in self.peng_props:
             if n in self.statmech_props:
                 self.mol_keys.append(n)
-        self.mol.
+        if 'mol' in dir(self):
+            self.mol.clear()
+            curtext = self.mol.currentText()
+            self.mol.addItems(sorted(self.mol_keys))
+            for i in range(self.mol.count()):
+                self.mol.setItemData(i, cen, QtCore.Qt.TextAlignmentRole)
+            if curtext in self.mol_keys:
+                self.mol.setCurrentText(curtext)
 
     def build_layout(self):
         lay = QGridLayout()
 
-        self.title = QLabel('Departure Functions Calculator')
-        self.title.setFixedSize(600, 40)
+        self.title = QLabel(u"\u2206E Calculator: Real & Ideal")
+        self.title.setFixedSize(650, 40)
         self.title.setFont(QFont('SansSerif', 18, QtGui.QFont.Bold))
+        self.title.setAlignment(QtCore.Qt.AlignCenter)
 
         # molecule selection
         self.mol_lbl = QLabel('Molecule:')
@@ -83,9 +87,21 @@ class DiffETab(QWidget):
         ledit = self.mol.lineEdit()
         ledit.setAlignment(cen)
         ledit.setReadOnly(True)
-        self.mol.addItems(sorted(self.mol_keys))
-        # remember previous index
-        self.prev_ind = 0
+        self.update()
 
-        for i in range(self.mol.count()):
-            self.mol.setItemData(i, cen, QtCore.Qt.TextAlignmentRole)
+        row = 0
+
+        # title
+        lay.addWidget(self.title, row, 1, 1, 2, cen)
+        row += 1
+
+        # molecule combo box
+        lay.addWidget(self.mol_lbl, row, 0, right)
+        lay.addWidget(self.mol, row, 1, 1, 2)
+        row += 1
+
+        # overall layout formatting
+        lay.setVerticalSpacing(20)
+        lay.setHorizontalSpacing(40)
+        lay.setContentsMargins(5, 30, 100, 50)
+        self.setLayout(lay)

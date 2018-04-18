@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from .peng_tab import PengTab
 from .statmech_tab import StatMechTab
 from .depart_tab import DepartTab
+from .diff_tab import DiffETab
 try:
     from PyQt4.QtGui import *
     from PyQt4 import *
@@ -14,5 +15,5 @@ except:
 all_tabs = [(PengTab, "PengRob Volume"),
             (StatMechTab, "StatMech Props"),
             (DepartTab, "Departure Functions"),
-            (QWidget, u"\u2206" + "E's of Gas")
+            (DiffETab, u"\u2206E's Calculator")
             ]
