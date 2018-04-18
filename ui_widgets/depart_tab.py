@@ -6,6 +6,8 @@ except:
     from PyQt5.QtGui import *
     from PyQt5 import *
     from PyQt5.QtWidgets import *
+from calculators import Departure
+from .peng_newmol import PengNewMolecule
 import os
 import sys
 import json
@@ -25,63 +27,64 @@ class DepartTab(QWidget):
         self.font = QFont('SansSerif', 14)
         self.setFont(self.font)
 
-        # PengRobinsonEOS object
-        self.peng = None
+        # Departure object
+        self.depart = None
 
-        # statmech ideal potentails object
-        self.statmech = None
-
-        # json property data paths
+        # json property data path
         self.peng_prop_path = 'assets\\data\\mol_props.json'
-        self.statmech_prop_path = 'assets\\data\\statmech_props.json'
-
-        # property data objects
         self.peng_props = None
-        self.statmech_props = None
 
-        # read in both json datasets
-        paths = ['peng', 'statmech']
-        for p in paths:
-            pathname = '%s_prop_path' % p
-            dataname = '%s_props' % p
-            at = getattr(self, pathname)
-            if not os.path.isfile(at):
-                at = '..\\' + at
-                setattr(self, pathname, at)
-            with open(at, 'r') as f:
-                setattr(self, dataname, json.load(f, encoding='latin1'))
-
-        # molecules used must have statmech and peng properties
-        self.mol_keys = []
-        for n in self.peng_props:
-            if n in self.statmech_props:
-                self.mol_keys.append(n)
-
+        self.update()
         self.build_layout()
+
+    def update(self):
+        with open(self.peng_prop_path, 'r') as f:
+            self.peng_props = json.load(f, encoding='latin1')
+        if 'mol' in dir(self):
+            curtext = self.mol.currentText()
+            self.mol.clear()
+            self.mol.addItems(sorted(self.peng_props.keys()))
+            for i in range(self.mol.count()):
+                self.mol.setItemData(i, cen, QtCore.Qt.TextAlignmentRole)
+            if curtext in self.peng_props:
+                self.mol.setCurrentText(curtext)
 
     def build_layout(self):
         lay = QGridLayout()
 
         self.title = QLabel('Departure Functions Calculator')
-        self.title.setFixedSize(600, 40)
+        self.title.setFixedSize(650, 40)
         self.title.setFont(QFont('SansSerif', 18, QtGui.QFont.Bold))
+        self.title.setAlignment(QtCore.Qt.AlignCenter)
 
         # molecule selection
         self.mol_lbl = QLabel('Molecule:')
         self.mol = QComboBox()
-        self.mol.setToolTip('Please use PengRob Volume & StatMech Props'
-                            ' to add a new molecule')
         self.mol.setFixedHeight(40)
         self.mol.setEditable(True)
         ledit = self.mol.lineEdit()
         ledit.setAlignment(cen)
         ledit.setReadOnly(True)
-        self.mol.addItems(sorted(self.mol_keys))
-        # remember previous index
-        self.prev_ind = 0
+        self.update()
 
-        for i in range(self.mol.count()):
-            self.mol.setItemData(i, cen, QtCore.Qt.TextAlignmentRole)
+        # buttons to add & remove molecule data
+        self.add = QPushButton('Add Molecule')
+        self.add.setFixedHeight(40)
+        self.rem = QPushButton('Remove Selected')
+        self.rem.setFixedHeight(40)
+
+        # current molecular data
+        self.Tc_lbl = QLabel('Tc (K)')
+        self.Tc = QLabel()
+        self.pc_lbl = QLabel('Pc (bar)')
+        self.pc = QLabel()
+        self.omega_lbl = QLabel(u'\u03c9   ')
+        self.omega = QLabel()
+        for w in [self.pc_lbl, self.pc,
+                  self.Tc_lbl, self.Tc,
+                  self.omega_lbl, self.omega
+                  ]:
+            w.setFixedHeight(30)
 
         # temperature label and input
         self.T_lbl = QLabel('Temperature (K):')
@@ -138,6 +141,21 @@ class DepartTab(QWidget):
         lay.addWidget(self.mol, row, 1, 1, 2)
         row += 1
 
+        lay.setRowStretch(row, 0.1)
+        lay.addWidget(self.add, row, 1)
+        lay.addWidget(self.rem, row, 2)
+        row += 1
+
+        lay.addWidget(self.Tc_lbl, row, 1, 1, 2, left)
+        lay.addWidget(self.pc_lbl, row, 1, 1, 2, cen)
+        lay.addWidget(self.omega_lbl, row, 1, 1, 2, right)
+        row += 1
+
+        lay.addWidget(self.Tc, row, 1, 1, 2, left)
+        lay.addWidget(self.pc, row, 1, 1, 2, cen)
+        lay.addWidget(self.omega, row, 1, 1, 2, right)
+        row += 1
+
         lay.addWidget(self.T_lbl, row, 0, right)
         lay.addWidget(self.T, row, 1, 1, 2)
         row += 1
@@ -158,9 +176,15 @@ class DepartTab(QWidget):
         lay.addWidget(self.S, row, 1)
         lay.addWidget(self.V, row, 2)
 
+        self.mol.currentTextChanged.connect(self.make_calc)
+
         # caclulate departure values when text changes
         self.T.textChanged.connect(self.calculate)
         self.p.textChanged.connect(self.calculate)
+
+        # add / remove molecule info
+        self.add.clicked.connect(self.add_mol)
+        self.rem.clicked.connect(self.remove_mol)
 
         # overall layout formatting
         lay.setVerticalSpacing(20)
@@ -168,13 +192,42 @@ class DepartTab(QWidget):
         lay.setContentsMargins(5, 30, 100, 50)
         self.setLayout(lay)
 
+    def make_calc(self):
+        molecule = self.mol.currentText()
+        if not molecule:
+            return
+        props = self.peng_props[molecule]
+        self.depart = Departure(props['pc'],
+                                props['Tc'],
+                                props['omega'])
+        self.pc.setText('%.2f' % props['pc'])
+        self.Tc.setText('%.2f' % props['Tc'])
+        self.omega.setText('%.3f' % props['omega'])
+        self.calculate()
+
     def calculate(self):
         try:
-            T = float(self.T.text())
             p = float(self.p.text())
+            T = float(self.T.text())
             if T <= 0 or p <= 0:
                 raise ValueError('Cannot be negative')
-            name = self.mol.currentText()
+            sol = self.depart.get_all(p, T)
+
+            # set potentials
+            for p in self.potentials:
+                val = sol[p[0]]
+                if 'kJ' in p[1]:
+                    val /= 1000.
+
+                txt = u"\u2206%s': %.3e %s" % (p[0], val, p[1])
+
+                # attempt to evenly space out label and value
+                txt = txt.replace(' ', ' ' * (28 - len(txt)), 1)
+
+                attr = getattr(self, p[0])
+                attr.setText(txt)
+                attr.setStyleSheet('background-color: lightgreen;')
+
         except (TypeError, ValueError, OverflowError):
             for p in self.potentials:
                 attr = getattr(self, p[0])
@@ -182,6 +235,43 @@ class DepartTab(QWidget):
                 attr.setStyleSheet('background-color: white;')
                 attr.setFont(self.font)
 
+    def remove_mol(self):
+        text = self.mol.currentText()
+        ind = self.mol.currentIndex()
+        if text in ['Ammonia (NH3)',
+                    'Carbon Dioxide (CO2)',
+                    'Chloromethane (CH3Cl)']:
+            QMessageBox(QMessageBox.Information, " ",
+                        "Sorry, you aren't allowed to remove %s" % text,
+                        QMessageBox.Ok).exec_()
+        else:
+            self.peng_props.pop(text)
+            self.save_mol_props()
+            self.mol.setCurrentIndex(0)
+            self.mol.removeItem(ind)
+
+    def add_mol(self):
+        """open dialog box for user to input new mol props"""
+        newm = PengNewMolecule(self.parent(), self.peng_props.keys())
+        newm.exec_()
+        if newm.passed:
+            name = newm.name.text()
+            info = {'pc': float(newm.pc.text()),
+                    'Tc': float(newm.Tc.text()),
+                    'omega': float(newm.omega.text())}
+            self.peng_props[name] = info
+            self.save_mol_props()
+            index = self.mol.count()
+            self.mol.insertItem(index, name)
+            self.mol.setItemData(index,
+                                 QtCore.Qt.AlignCenter,
+                                 QtCore.Qt.TextAlignmentRole
+                                 )
+            self.mol.setCurrentText(name)
+
+    def save_mol_props(self):
+        with open(self.peng_prop_path, 'w') as f:
+            json.dump(self.peng_props, f, indent=4, sort_keys=True)
 
 if __name__ == '__main__':
     app = QApplication.instance()
