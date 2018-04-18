@@ -62,7 +62,7 @@ class Departure(PengRobinsonEOS):
         B = self.p * self.b / (self.R * self.T)
         f2 = (self.z + (1 + np.sqrt(2)) * B) / (self.z + (1 - np.sqrt(2)) * B)
         h1 = self.R * self.T * (1 - self.z)
-        c2 = (self.a * self.alpha - self.T * self.dadT) / (2**(3/2) * self.b)
+        c2 = (self.a * self.alpha - self.T * self.dadT) / (2**(3/2.) * self.b)
         h2 = c2 * np.log(f2)
         dh = (h1 + h2) * 1e2  # J/mol*K
         self.dH = dh
@@ -143,5 +143,18 @@ if __name__ == '__main__':
     x = me_sleepy.get_all(0.06, 200, 'liquid')
     x2 = me_sleepy.get_all(2.09, 450)
 
+    id_diff = {'U': 7024,
+               'H': 9102,
+               'A': -43507,
+               'G': -41429,
+               'S': -0.336,
+               'V': 0}
+
     diff = {i: x[i] - x2[i] for i in x}
-    print(diff)
+    diff_real = {j: diff[j] + id_diff[j] for j in diff}
+    print('\nDeparture Differences')
+    for d in diff:
+        print('%s: %.3f' % (d, diff[d]))
+    print('\n\nReal Differences')
+    for d in diff_real:
+        print('%s: %.3f' % (d, diff_real[d]))
