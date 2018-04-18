@@ -10,12 +10,13 @@ import os
 import sys
 import json
 import re
-from .statmech_molprop import StatMechInfo
-from .statmech_newmol import StatMechNewMolecule
-try:
-    from calculators import statmech_calculator
-except:
-    from depyrt.calculators import statmech_calculator
+from calculators import statmech_calculator
+if __name__ == '__main__':
+    from statmech_molprop import StatMechInfo
+    from statmech_newmol import StatMechNewMolecule
+else:
+    from .statmech_molprop import StatMechInfo
+    from .statmech_newmol import StatMechNewMolecule
 
 """ global positioning params """
 cen = QtCore.Qt.AlignHCenter
@@ -40,16 +41,25 @@ class StatMechTab(QWidget):
         if not os.path.isfile(self.prop_path):
             self.prop_path = '..\\' + self.prop_path
 
+        self.build_layout()
+
+    def update(self):
         with open(self.prop_path, 'r') as f:
             self.statmech_props = json.load(f, encoding='latin1')
-
-        self.build_layout()
+        if 'mol' in dir(self):
+            curtext = self.mol.currentText()
+            self.mol.clear()
+            self.mol.addItems(sorted(self.statmech_props.keys()))
+            for i in range(self.mol.count()):
+                self.mol.setItemData(i, cen, QtCore.Qt.TextAlignmentRole)
+            if curtext in self.statmech_props:
+                self.mol.setCurrentText(curtext)
 
     def build_layout(self):
         lay = QGridLayout()
 
         self.title = QLabel('StatMech Ideal Properties Calculator')
-        self.title.setFixedSize(600, 40)
+        self.title.setFixedSize(650, 40)
         self.title.setFont(QFont('SansSerif', 18, QtGui.QFont.Bold))
         self.title.setAlignment(QtCore.Qt.AlignCenter)
 
@@ -61,12 +71,7 @@ class StatMechTab(QWidget):
         ledit = self.mol.lineEdit()
         ledit.setAlignment(cen)
         ledit.setReadOnly(True)
-        self.mol.addItems(sorted(self.statmech_props.keys()))
-        # remember previous index
-        self.prev_ind = 0
-
-        for i in range(self.mol.count()):
-            self.mol.setItemData(i, cen, QtCore.Qt.TextAlignmentRole)
+        self.update()
 
         # molecule info button
         self.mol_info = QPushButton('Info')
@@ -163,8 +168,8 @@ class StatMechTab(QWidget):
         lay.addWidget(self.Cv, row, 2)
 
         # button methods
-        self.calculate()
-        self.mol.currentTextChanged.connect(self.calculate)
+        self.make_calc()
+        self.mol.currentTextChanged.connect(self.make_calc)
         self.mol_info.clicked.connect(self.get_info)
         self.add.clicked.connect(self.add_mol)
         self.rem.clicked.connect(self.remove_mol)
@@ -177,14 +182,19 @@ class StatMechTab(QWidget):
         lay.setContentsMargins(5, 30, 100, 50)
         self.setLayout(lay)
 
+    def make_calc(self):
+        molecule = self.mol.currentText()
+        if not molecule:
+            return
+        self.calculator = statmech_calculator(self.statmech_props[molecule])
+        self.calculate()
+
     def calculate(self):
         try:
             T = float(self.T.text())
             p = float(self.p.text())
             if T <= 0 or p <= 0:
                 raise ValueError('Cannot be negative')
-            name = self.mol.currentText()
-            self.calculator = statmech_calculator(self.statmech_props[name])
 
             # convert pressure (bar) to ideal volume in m^3
             v_id = 8.314 * T / (p * 1E5)
@@ -199,7 +209,7 @@ class StatMechTab(QWidget):
                 txt = '%s: %.3e %s' % (p[0], val, p[1])
 
                 # attempt to evenly space out label and value
-                txt = txt.replace(' ', ' ' * (27 - len(txt)), 1)
+                txt = txt.replace(' ', ' ' * (30 - len(txt)), 1)
 
                 attr = getattr(self, p[0])
                 attr.setText(txt)

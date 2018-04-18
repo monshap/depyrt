@@ -21,23 +21,35 @@ bot = QtCore.Qt.AlignBottom
 class PengTab(QWidget):
     def __init__(self, *args):
         super(PengTab, self).__init__(*args)
+        self.setFixedSize(1000, 800)
+        self.font = QFont('SansSerif', 14)
+        self.setFont(self.font)
 
         # PengRobinsonEOS object
         self.calculator = None
 
         self.prop_path = 'assets\\data\\mol_props.json'
 
+        self.build_layout()
+
+    def update(self):
         with open(self.prop_path, 'r') as f:
             self.mol_props = json.load(f, encoding='latin1')
-
-        self.build_layout()
+        if 'mol' in dir(self):
+            curtext = self.mol.currentText()
+            self.mol.clear()
+            self.mol.addItems(sorted(self.mol_props.keys()))
+            for i in range(self.mol.count()):
+                self.mol.setItemData(i, cen, QtCore.Qt.TextAlignmentRole)
+            if curtext in self.mol_props:
+                self.mol.setCurrentText(curtext)
 
     def build_layout(self):
         lay = QGridLayout()
 
         # main message
         self.title = QLabel('Peng Robinson Volume Calculator')
-        self.title.setFixedSize(600, 40)
+        self.title.setFixedSize(650, 40)
         self.title.setFont(QFont('SansSerif', 18, QtGui.QFont.Bold))
         self.title.setAlignment(QtCore.Qt.AlignCenter)
 
@@ -49,12 +61,7 @@ class PengTab(QWidget):
         ledit = self.mol.lineEdit()
         ledit.setAlignment(cen)
         ledit.setReadOnly(True)
-        self.mol.addItems(sorted(self.mol_props.keys()))
-        # remember previous index
-        self.peng_prev_ind = 0
-
-        for i in range(self.mol.count()):
-            self.mol.setItemData(i, cen, QtCore.Qt.TextAlignmentRole)
+        self.update()
 
         # buttons to add & remove molecule data
         self.add = QPushButton('Add Molecule')
@@ -113,7 +120,7 @@ class PengTab(QWidget):
         root.addWidget(self.vap)
         root.setAlignment(cen)
 
-        lay.setColumnStretch(0, 0.5)
+        lay.setColumnStretch(0, 0.4)
 
         # use row counter to easily change order of widgets
         row = 0
@@ -125,7 +132,7 @@ class PengTab(QWidget):
         lay.addWidget(self.mol, row, 1, 1, 2)
         row += 1
 
-        lay.setRowStretch(row, 0.1)
+        # lay.setRowStretch(row, 0.1)
         lay.addWidget(self.add, row, 1)
         lay.addWidget(self.rem, row, 2)
         row += 1
@@ -175,6 +182,19 @@ class PengTab(QWidget):
         self.vap.toggled.connect(self.calculate)
         self.rem.clicked.connect(self.remove_mol)
 
+    def make_calc(self):
+        molecule = self.mol.currentText()
+        if not molecule:
+            return
+        props = self.mol_props[molecule]
+        self.calculator = PengRobinsonEOS(props['pc'],
+                                          props['Tc'],
+                                          props['omega'])
+        self.pc.setText('%.2f' % props['pc'])
+        self.Tc.setText('%.2f' % props['Tc'])
+        self.omega.setText('%.3f' % props['omega'])
+        self.calculate()
+
     def calculate(self):
         success = True
         p = 0
@@ -208,18 +228,6 @@ class PengTab(QWidget):
             z_str = '%.3f' if z >= 0.1 else '%.3e'
             self.Z.setText(z_str % z)
             self.Z.setStyleSheet('background-color: lightgreen;')
-
-    def make_calc(self):
-        molecule = self.mol.currentText()
-        props = self.mol_props[molecule]
-        self.calculator = PengRobinsonEOS(props['pc'],
-                                          props['Tc'],
-                                          props['omega'])
-        self.pc.setText('%.2f' % props['pc'])
-        self.Tc.setText('%.2f' % props['Tc'])
-        self.omega.setText('%.3f' % props['omega'])
-        self.peng_prev_ind = self.mol.currentIndex()
-        self.calculate()
 
     def remove_mol(self):
         text = self.mol.currentText()
