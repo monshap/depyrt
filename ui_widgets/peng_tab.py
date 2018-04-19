@@ -171,6 +171,7 @@ class PengTab(QWidget):
         lay.setVerticalSpacing(10)
         lay.setHorizontalSpacing(40)
         lay.setContentsMargins(5, 30, 100, 50)
+
         self.setLayout(lay)
 
         self.make_calc()
