@@ -28,7 +28,7 @@ class StatMechNewMolecule(QDialog):
         self.taken_names = taken_names
 
         # regex pattern to match rot & vib inputs
-        self.rv_regex = '^[0-9]+\.?[0-9]*(\([1-9][0-9]\))?$'
+        self.rv_regex = '^[0-9]+\.?[0-9]*(\([1-9][0-9]?\))?$'
 
         self.build_layout()
 
