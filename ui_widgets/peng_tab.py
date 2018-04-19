@@ -155,9 +155,9 @@ class PengTab(QWidget):
         lay.addWidget(self.p, row, 1, 1, 2)
         row += 1
 
-        lay.addWidget(self.root_lbl, row, 0, right | top)
-        lay.addWidget(self.liq, row, 1, top | cen)
-        lay.addWidget(self.vap, row, 2, top | cen)
+        lay.addWidget(self.root_lbl, row, 0, right)
+        lay.addWidget(self.liq, row, 1, cen)
+        lay.addWidget(self.vap, row, 2, cen)
         row += 1
 
         lay.addWidget(self.V_lbl, row, 0, right)
@@ -168,7 +168,7 @@ class PengTab(QWidget):
         lay.addWidget(self.Z, row, 1, 1, 2, cen)
 
         # overall layout formatting
-        lay.setVerticalSpacing(40)
+        lay.setVerticalSpacing(10)
         lay.setHorizontalSpacing(40)
         lay.setContentsMargins(5, 30, 100, 50)
         self.setLayout(lay)

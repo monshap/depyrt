@@ -96,6 +96,17 @@ class DepartTab(QWidget):
         self.p = QLineEdit(text=str(1.01325))
         self.p.setAlignment(cen)
 
+        # root radio buttons (vapor or liquid)
+        self.root_lbl = QLabel('Phase:')
+        self.vap = QRadioButton('Vapor')
+        self.liq = QRadioButton('Liquid')
+        self.vap.setChecked(True)
+
+        root = QHBoxLayout()
+        root.addWidget(self.liq)
+        root.addWidget(self.vap)
+        root.setAlignment(cen)
+
         """ Potentials """
         # internal energy
         self.U = QLabel()
@@ -115,20 +126,20 @@ class DepartTab(QWidget):
         # constant pressure heat capacity
         self.V = QLabel()
 
-        self.potentials = [('U', '(kJ / mol)'),
-                           ('H', '(kJ / mol)'),
-                           ('A', '(kJ / mol)'),
-                           ('G', '(kJ / mol)'),
+        self.potentials = [('U', '(J / mol)'),
+                           ('H', '(J / mol)'),
+                           ('A', '(J / mol)'),
+                           ('G', '(J / mol)'),
                            ('S', '(J / mol K)'),
                            ('V', '(L / mol)')]
 
         for p in self.potentials:
             attr = getattr(self, p[0])
+            attr.setAlignment(QtCore.Qt.AlignCenter)
             attr.setFont(self.font)
             attr.setFixedSize(300, 60)
             attr.setFrameShape(QFrame.Panel)
             attr.setFrameShadow(QFrame.Sunken)
-            attr.setAlignment(QtCore.Qt.AlignVCenter)
 
         row = 0
 
@@ -164,6 +175,11 @@ class DepartTab(QWidget):
         lay.addWidget(self.p, row, 1, 1, 2)
         row += 1
 
+        lay.addWidget(self.root_lbl, row, 0, right)
+        lay.addWidget(self.liq, row, 1, cen)
+        lay.addWidget(self.vap, row, 2, cen)
+        row += 1
+
         lay.addWidget(QLabel('Results:'), row, 0, right)
         lay.addWidget(self.U, row, 1)
         lay.addWidget(self.H, row, 2)
@@ -181,15 +197,16 @@ class DepartTab(QWidget):
         # caclulate departure values when text changes
         self.T.textChanged.connect(self.calculate)
         self.p.textChanged.connect(self.calculate)
+        self.vap.toggled.connect(self.calculate)
 
         # add / remove molecule info
         self.add.clicked.connect(self.add_mol)
         self.rem.clicked.connect(self.remove_mol)
 
         # overall layout formatting
-        lay.setVerticalSpacing(20)
+        lay.setVerticalSpacing(10)
         lay.setHorizontalSpacing(40)
-        lay.setContentsMargins(5, 30, 100, 50)
+        lay.setContentsMargins(5, 5, 100, 50)
         self.setLayout(lay)
 
     def make_calc(self):
@@ -211,13 +228,11 @@ class DepartTab(QWidget):
             T = float(self.T.text())
             if T <= 0 or p <= 0:
                 raise ValueError('Cannot be negative')
-            sol = self.depart.get_all(p, T)
-
+            root = 'vapor' if self.vap.isChecked() else 'liquid'
+            sol = self.depart.get_all(p, T, root)
             # set potentials
             for p in self.potentials:
                 val = sol[p[0]]
-                if 'kJ' in p[1]:
-                    val /= 1000.
 
                 txt = u"\u2206%s': %.3e %s" % (p[0], val, p[1])
 

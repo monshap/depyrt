@@ -125,7 +125,7 @@ class StatMechTab(QWidget):
             attr.setFixedSize(300, 60)
             attr.setFrameShape(QFrame.Panel)
             attr.setFrameShadow(QFrame.Sunken)
-            attr.setAlignment(QtCore.Qt.AlignVCenter)
+            attr.setAlignment(QtCore.Qt.AlignCenter)
 
         row = 0
 
@@ -177,7 +177,7 @@ class StatMechTab(QWidget):
         self.p.textChanged.connect(self.calculate)
 
         # overall layout formatting
-        lay.setVerticalSpacing(20)
+        lay.setVerticalSpacing(10)
         lay.setHorizontalSpacing(40)
         lay.setContentsMargins(5, 30, 100, 50)
         self.setLayout(lay)
@@ -209,7 +209,7 @@ class StatMechTab(QWidget):
                 txt = '%s: %.3e %s' % (p[0], val, p[1])
 
                 # attempt to evenly space out label and value
-                txt = txt.replace(' ', ' ' * (30 - len(txt)), 1)
+                txt = txt.replace(' ', ' ' * (28 - len(txt)), 1)
 
                 attr = getattr(self, p[0])
                 attr.setText(txt)
