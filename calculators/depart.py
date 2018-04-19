@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 import numpy as np
 if __name__ == '__main__':
     from peng import PengRobinsonEOS
@@ -6,7 +6,7 @@ else:
     from .peng import PengRobinsonEOS
 
 
-class Departure(PengRobinsonEOS):
+class Departure(PengRobinsonEOS, object):
     def __init__(self, pc, Tc, omega):
         # Initialize molar properties
         super(Departure, self).__init__(pc, Tc, omega)
