@@ -72,7 +72,7 @@ class DiffETab(QWidget):
     def build_layout(self):
         lay = QGridLayout()
 
-        self.title = QLabel(u"\u2206E Calculator: Real & Ideal")
+        self.title = QLabel(u"\u2206E Calculator for Real Systems")
         self.title.setFixedSize(650, 40)
         self.title.setFont(QFont('SansSerif', 18, QtGui.QFont.Bold))
         self.title.setAlignment(QtCore.Qt.AlignCenter)
@@ -80,8 +80,8 @@ class DiffETab(QWidget):
         # molecule selection
         self.mol_lbl = QLabel('Molecule:')
         self.mol = QComboBox()
-        self.mol.setToolTip('Please use add molecule using other tabs\n'
-                            '(both PengRob & StatMech info needed')
+        self.mol.setToolTip('Please use "Add Molecule" buttons in other tabs\n'
+                            '(both critical and statmech properties needed)')
         self.mol.setFixedHeight(40)
         self.mol.setEditable(True)
         ledit = self.mol.lineEdit()
@@ -239,7 +239,7 @@ class DiffETab(QWidget):
         # lay.setHorizontalSpacing(10)
         lay.setColumnMinimumWidth(1, 350)
         lay.setColumnMinimumWidth(2, 350)
-        lay.setContentsMargins(20, 50, 100, 50)
+        lay.setContentsMargins(20, 10, 100, 50)
         self.setLayout(lay)
 
     def make_calc(self):
