@@ -296,8 +296,7 @@ class DiffETab(QWidget):
                 attr.setStyleSheet('background-color: lightgreen;')
                 attr.setFont(self.font)
 
-        except Exception as e:
-            print(e)
+        except:
             for p in self.potentials:
                 attr = getattr(self, p[0])
                 attr.setText('')
