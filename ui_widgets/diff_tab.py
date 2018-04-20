@@ -289,7 +289,7 @@ class DiffETab(QWidget):
                 if 'kJ' in p[1]:
                     val /= 1000.
 
-                txt_str = '%.3f' if val < 1e5 and val > 1e-4 else '%.3e'
+                txt_str = '%.3f' if 1E-4 < abs(val) < 1E5 else '%.3e'
                 txt_str = u"\u2206%s: " + txt_str + " %s"
                 txt = txt_str % (p[0], val, p[1])
 
