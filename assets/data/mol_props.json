@@ -5,13 +5,38 @@
         "pc": 113.53
     }, 
     "Carbon Dioxide (CO2)": {
-        "Tc": 304.18, 
-        "omega": 0.239, 
-        "pc": 73.8
+        "Tc": 304.12, 
+        "omega": 0.225, 
+        "pc": 73.74
     }, 
     "Chloromethane (CH3Cl)": {
-        "Tc": 416.3, 
-        "omega": 0.156, 
-        "pc": 65.9
+        "Tc": 416.2, 
+        "omega": 0.151, 
+        "pc": 66.80
+    },
+    "Methane (CH4)": {
+        "Tc": 190.56, 
+        "omega": 0.011, 
+        "pc": 45.99
+    },
+    "Sulfur Dioxide (SO2)": {
+        "Tc": 430.8, 
+        "omega": 0.256, 
+        "pc": 78.8
+    },
+    "Nitrous Oxide (N2O)": {
+        "Tc": 309.6,
+        "omega": 0.165,
+        "pc": 72.4
+    },
+    "Carbon Tetrachloride (CCl4)": {
+        "Tc": 556.4,
+        "omega": 0.193,
+        "pc": 45.6
+    },
+    "Water (H2O)": {
+        "Tc": 647.14, 
+        "omega": 0.344, 
+        "pc": 220.64
     }
 }

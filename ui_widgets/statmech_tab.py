@@ -14,9 +14,11 @@ from calculators import statmech_calculator
 if __name__ == '__main__':
     from statmech_molprop import StatMechInfo
     from statmech_newmol import StatMechNewMolecule
+    from locked_data import locked_mols
 else:
     from .statmech_molprop import StatMechInfo
     from .statmech_newmol import StatMechNewMolecule
+    from .locked_data import locked_mols
 
 """ global positioning params """
 cen = QtCore.Qt.AlignHCenter
@@ -266,9 +268,7 @@ class StatMechTab(QWidget):
     def remove_mol(self):
         text = self.mol.currentText()
         ind = self.mol.currentIndex()
-        if text in ['Ammonia (NH3)',
-                    'Carbon Dioxide (CO2)',
-                    'Chloromethane (CH3Cl)']:
+        if text in locked_mols:
             QMessageBox(QMessageBox.Information, " ",
                         "Sorry, you aren't allowed to remove %s" % text,
                         QMessageBox.Ok).exec_()

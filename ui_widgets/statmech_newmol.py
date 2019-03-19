@@ -138,7 +138,7 @@ class StatMechNewMolecule(QDialog):
             widget.setStyleSheet('background-color: salmon')
             widget.setFont(self.font)
 
-    def isposfloat(self, widget, lim=1e6):
+    def isposfloat(self, widget, lim=1e12):
         widget.passed = False
         text = widget.text()
         try:

@@ -9,6 +9,7 @@ except:
 import json
 from calculators import PengRobinsonEOS
 from .peng_newmol import PengNewMolecule
+from .locked_data import locked_mols
 
 """ global positioning params """
 cen = QtCore.Qt.AlignHCenter
@@ -233,9 +234,7 @@ class PengTab(QWidget):
     def remove_mol(self):
         text = self.mol.currentText()
         ind = self.mol.currentIndex()
-        if text in ['Ammonia (NH3)',
-                    'Carbon Dioxide (CO2)',
-                    'Chloromethane (CH3Cl)']:
+        if text in locked_mols:
             QMessageBox(QMessageBox.Information, " ",
                         "Sorry, you aren't allowed to remove %s" % text,
                         QMessageBox.Ok).exec_()
