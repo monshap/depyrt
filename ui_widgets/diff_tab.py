@@ -276,9 +276,34 @@ class DiffETab(QWidget):
             v_id2 = 8.314 * T2 / (p2 * 1E5)
             id_2 = self.statmech.calc_all(T2, v_id2)
 
-            # calculate departures
+            # calculate departure for state 1
             dep1 = self.depart.get_all(p1, T1, root1)
+
+            # guess phase if only one vol found
+            if self.depart.phase_guess:
+                if self.depart.phase == 'vapor':
+                    self.vap1.setChecked(True)
+                else:
+                    self.liq1.setChecked(True)
+                self.vap1.setDisabled(True)
+                self.liq1.setDisabled(True)
+            else:
+                self.vap1.setEnabled(True)
+                self.liq1.setEnabled(True)
+
+            # repeat for state 2
             dep2 = self.depart.get_all(p2, T2, root2)
+
+            if self.depart.phase_guess:
+                if self.depart.phase == 'vapor':
+                    self.vap2.setChecked(True)
+                else:
+                    self.liq2.setChecked(True)
+                self.vap2.setDisabled(True)
+                self.liq2.setDisabled(True)
+            else:
+                self.vap2.setEnabled(True)
+                self.liq2.setEnabled(True)
 
             # calculate change
             sol = {i[0]: dep1[i[0]] - dep2[i[0]] + id_2[i[0]] - id_1[i[0]]

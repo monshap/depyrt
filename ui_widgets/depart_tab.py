@@ -231,6 +231,18 @@ class DepartTab(QWidget):
                 raise ValueError('Cannot be negative')
             root = 'vapor' if self.vap.isChecked() else 'liquid'
             sol = self.depart.get_all(p, T, root)
+
+            if self.depart.phase_guess:
+                if self.depart.phase == 'vapor':
+                    self.vap.setChecked(True)
+                else:
+                    self.liq.setChecked(True)
+                self.vap.setDisabled(True)
+                self.liq.setDisabled(True)
+            else:
+                self.vap.setEnabled(True)
+                self.liq.setEnabled(True)
+
             # set potentials
             for p in self.potentials:
                 val = sol[p[0]]

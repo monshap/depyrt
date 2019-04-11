@@ -214,22 +214,27 @@ class PengTab(QWidget):
             self.Z.setText('')
             self.Z.setStyleSheet('background-color: white;')
         else:
-            root = 'vapor' if self.vap.isChecked() else 'liquid'
-            vals = self.calculator.calc_v(p, T, None)
-            if len(vals) == 1:
+            root_inp = 'vapor' if self.vap.isChecked() else 'liquid'
+
+            vol = self.calculator.calc_v(p, T, root_inp)
+
+            vol_str = '%.3f' if 100 > vol > 1 else '%.3e'
+            self.V.setText(vol_str % vol)
+            self.V.setStyleSheet('background-color: lightgreen;')
+
+            z_str = '%.3f' if self.calculator.z >= 0.1 else '%.3e'
+            self.Z.setText(z_str % self.calculator.z)
+            self.Z.setStyleSheet('background-color: lightgreen;')
+            if self.calculator.phase_guess:
+                if self.calculator.phase == 'vapor':
+                    self.vap.setChecked(True)
+                else:
+                    self.liq.setChecked(True)
                 self.vap.setDisabled(True)
                 self.liq.setDisabled(True)
             else:
                 self.vap.setEnabled(True)
                 self.liq.setEnabled(True)
-            val = max(vals) if root == 'vapor' else min(vals)
-            val_str = '%.3f' if 100 > val > 1 else '%.3e'
-            self.V.setText(val_str % val)
-            self.V.setStyleSheet('background-color: lightgreen;')
-            z = p * val / (self.calculator.R * T)
-            z_str = '%.3f' if z >= 0.1 else '%.3e'
-            self.Z.setText(z_str % z)
-            self.Z.setStyleSheet('background-color: lightgreen;')
 
     def remove_mol(self):
         text = self.mol.currentText()

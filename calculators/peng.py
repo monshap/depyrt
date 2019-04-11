@@ -18,6 +18,9 @@ class PengRobinsonEOS():
         self.Tc = Tc
         self.kappa = 0.37464 + 1.54226 * omega - 0.26992 * omega**2
 
+        self.real_vs = None
+        self.phase_guess = False
+
     def calc_v(self, p, T, root='vapor'):
         """ c1 * v^3 + c2 * v^2 + c3 * v + c4 = 0 """
         # if Tc is set to 0, EOS behaves as Ideal Gas
@@ -57,12 +60,17 @@ class PengRobinsonEOS():
                     val = val.real
             vs.append(val)
 
+        self.real_vs = vs
+
+        self.phase_guess = bool(len(self.real_vs) == 1)
+
         # return appropriate root depending on phase
         if not root:
-            return vs
+            return self.real_vs
         else:
             self.v = max(vs) if root.lower() in 'vapor' else min(vs)
             self.z = p * self.v / (self.R * T)
+            self.phase = 'vapor' if self.z > 0.1 else 'liquid'
             return self.v
 
 if __name__ == '__main__':
